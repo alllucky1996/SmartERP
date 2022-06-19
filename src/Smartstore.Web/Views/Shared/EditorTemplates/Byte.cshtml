@@ -1,0 +1,16 @@
+﻿@using Smartstore.Utilities
+
+@{
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
+
+<input type="number" 
+       asp-for="@Model"
+       attrs="attributes"
+       sm-decimals="@(GetMetadata<uint?>("decimals") ?? 0)"
+       sm-postfix="@(GetMetadata<string>("postfix"))"
+       placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.Empty").Value)"
+       min="@(GetMetadata<byte?>("min") ?? 0)"
+       max="@(GetMetadata<byte?>("max") ?? 255)"
+       step="@(GetMetadata<byte?>("step") ?? 1)" />

@@ -1,0 +1,118 @@
+﻿/// <reference path="theme.scss" />
+
+//
+// Ratings
+// --------------------------------------------------
+
+.rating {
+	display: inline-block;
+	height: 16px;
+	width: 80px;
+	background-repeat: repeat-x;
+	background-position: 0 50%;
+    background-image: url('images/star-off.png');
+}
+.rating > * {
+    position: relative;
+    display: inline-block;
+	height: 16px;
+	background-image: url('images/star-on.png');
+}
+.rating.rating-small {
+	height: 11px;
+	width: 60px;
+	padding: 1px 0;
+    background-image: url('images/star-off-12.png');
+}
+.rating.rating-small > * {
+	height: 11px;
+	background-image: url('images/star-on-12.png');
+}
+
+
+//
+// Reviews
+// --------------------------------------------------
+
+.review-list, 
+.review-item,
+.review-title {
+    position: relative;
+}
+
+.review-item {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(0,0,0, 0.12);
+
+    &:last-child { border-width: 0; }
+}
+
+.review-title {
+    margin-bottom: 0.2rem;
+
+    .rating {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        > * { vertical-align: top; }
+    }
+
+    h4 {
+        position: relative;
+        margin: 0;
+        padding-left: 90px;
+        font-size: inherit;
+        font-weight: $font-weight-medium;
+
+        &:empty:after {
+            content: '.';
+            visibility: hidden;
+        }
+    }
+}
+
+.review-meta {
+	display: flex;
+    font-size: 0.8125em;
+    .review-meta-label {
+        font-weight: bold;
+    }
+    .review-meta-value {
+        padding-left: 0.25rem;
+        padding-right: 0.5rem;
+    }
+}
+
+.review-text {
+    line-height: 1.4;
+    margin-top: 1rem;
+}
+
+.review-vote {
+    font-size: 0.8125em;
+    color: $text-muted;
+
+    .review-vote-count { font-weight: bold; }
+
+    .review-vote-link {
+	    text-decoration: none;
+	    padding: 0 0.3rem;
+	    &.review-vote-link-yes { color: $success; }
+	    &.review-vote-link-yes:hover { background: $success; color: #fff }
+	    &.review-vote-link-no { color: $danger; }
+	    &.review-vote-link-no:hover { background: $danger; color: #fff }
+
+        .fa { font-size: $font-size-lg; }
+    }   
+}
+
+
+//
+// Write review form
+// --------------------------------------------------
+
+.write-review {
+    background-color: $gray-100;
+    padding: 2rem;
+}

@@ -1,0 +1,22 @@
+﻿@model IRuleExpression
+
+@{
+    var metadata = Model.Descriptor.Metadata;
+    var id = "rule-value-" + Model.Id;
+    var min = metadata.Get("min") as float?;
+    var max = metadata.Get("max") as float?;
+    var step = metadata.Get("step") as float?;
+    var decimals = (metadata.Get("decimals") as uint?) ?? 2;
+}
+
+@*INFO: onRuleValueChanged (enables save button) called by handler in smartstore.rules.js.*@
+<input type="number"
+       id="@id" 
+       name="@id"
+       value="@Model.RawValue"
+       sm-decimals="@decimals"
+       placeholder="@T("Common.Empty")"
+       min="@min"
+       max="@max"
+       attr-step='(step > 0, step?.ToStringInvariant())'
+       class="form-control" />

@@ -1,0 +1,60 @@
+﻿@using Smartstore.Utilities
+
+@model string
+
+@{
+    var lazy = GetMetadata<bool?>("lazy") ?? true;
+    var id = Html.IdForModel();
+    var html = ((string)ViewData.TemplateInfo.FormattedModelValue);
+    var htmlIsEmpty = !html.HasValue() || html == "<p></p>" || html == "<p>&nbsp;</p>" || html == "<p><br></p>";
+    string culture = WorkContext.WorkingLanguage.LanguageCulture;
+
+
+    Assets.BodyAttributes["data-file-manager-url"] = Display.GetFileManagerUrl();
+
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
+<script src="~/bundle/js/codemirror.js" sm-key="codemirror" sm-target-zone="scripts"></script>
+
+<widget key="summernote" target-zone="scripts">
+    <script src="~/bundle/js/summernote.js"></script>
+    @* Find summernote localization file *@
+    <script src="~/lib/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+    <script src="~/lib/editors/summernote/plugins/lang/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+</widget>
+
+<link rel="stylesheet" href="~/lib/editors/summernote/summernote-bs4.css" sm-key="summernote" sm-target-zone="stylesheets" />
+<link rel="stylesheet" href="~/bundle/css/codemirror.css" sm-key="codemirror" sm-target-zone="stylesheets" />
+
+<div class="html-editor-root edit-control"
+     data-summernote-image-upload-url="@Html.Raw(Url.Action("ProcessRequest", "RoxyFileManager"))"
+     data-editor="html"
+     attr-data-lazy='(lazy, "true")'
+     data-lang="@Html.Raw(culture != null ? $"'{culture}'" : "null")">
+
+    <textarea asp-for="@Model"
+              id="@id"
+              name="@Html.NameForModel()"
+              class="summernote-editor"
+              attr-class='(lazy, "d-none")'>
+        @Html.Raw(html)
+    </textarea>
+
+    @if (lazy)
+    {
+        <div class="note-editor-preview" attr-class='(htmlIsEmpty, "empty")' data-target="#@id" attr-data-lang="(culture != null, culture)">
+            @if (htmlIsEmpty)
+            {
+                <div>
+                    <i class="fab fa-html5 mr-1"></i>
+                    <span class="text-muted">@T("HtmlEditor.ClickToEdit")</span>
+                </div>
+            }
+            else
+            {
+                @Html.Raw(html)
+            }
+        </div>
+    }
+</div>

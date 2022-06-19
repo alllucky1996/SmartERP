@@ -1,0 +1,129 @@
+/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+
+// Theme: Smartstore Admin
+// ========================================
+
+
+//
+// Bootstrap 4
+// --------------------------------------------------
+
+@import "_variables.scss";
+@import "../lib/bs4/scss/bootstrap.scss";
+
+
+//
+// Vendors
+// --------------------------------------------------
+
+@import "../lib/rfs/_rfs.scss";
+@import "../lib/select2/scss/core.scss";
+@import "../lib/colorpicker/scss/_colorpicker.scss";
+@import "../lib/datetimepicker/scss/_tempusdominus.scss";
+@import "../lib/editors/summernote/scss/summernote.scss";
+
+// Button tweaks:
+// Must come BEFORE custom button import because of
+// css specificity.
+// -----------------------------------------------------
+
+@each $color, $value in $theme-colors {
+    *:not(.show) > .btn-#{$color},
+    *:not(.show) > .btn-outline-#{$color} {
+        &:not(:active):not(.active):focus,
+        &:not(:active):not(.active).focus {
+            // Show focus ring in focus state only, not in active state.
+            @if $color == "secondary" or $color == "light" {
+                box-shadow: 0 0 0 rgba(#000, 0) inset, 0 0 0 0.2em rgba($primary, .15);
+            }
+            @else {
+                box-shadow: 0 0 0 rgba(#000, 0) inset, 0 0 0 0.2em rgba($value, .4);
+            }
+        }
+    }
+}
+
+@each $color, $value in ("light": $light, "secondary": $secondary) {
+    .btn-#{$color} {
+        @include button-variant($value, $value, darken($value, 4%), rgba(#000, 0.12), darken($value, 7.5%), rgba(#000, 0.175));
+    }
+}
+
+
+.btn-secondary,
+.btn-light {
+    // Light buttons with default focus ring look *lost* without a button border.
+    &:focus {
+        border-color: rgba(#000, 0.175) !important;
+    }
+
+    // Light button icons lighter (looks nice).
+    > i, > .bi {
+        transition: opacity .05s ease-in-out;
+    }
+
+    &:not(:hover):not(:active):not(.active):not(:focus):not([disabled]):not(.disabled) {
+        > i, > .bi {
+            color: lighten($body-color, 16%);
+        }
+    }
+}
+
+
+//
+// Global / Shared
+// --------------------------------------------------
+
+@import '../shared/_variables-shared.scss';
+@import '../shared/_mixins.scss';
+@import '../shared/_fa.scss';
+@import '../shared/_bootstrap-icons.scss';
+@import '../shared/_typo.scss';
+@import '../shared/_alert.scss';
+@import '../shared/_buttons.scss';
+@import '../shared/_card.scss';
+@import '../shared/_forms.scss';
+@import '../shared/_numberinput.scss';
+@import '../shared/_pagination.scss';
+@import '../shared/_nav.scss';
+@import "../shared/_modal.scss";
+@import '../shared/_dropdown.scss';
+@import "../shared/_throbber.scss";
+@import "../shared/_spinner.scss";
+@import "../shared/_sortable-grip.scss";
+@import "../shared/_entity-picker.scss";
+@import "../shared/_tree.scss";
+@import '../shared/_choice.scss';
+@import '../shared/_switch.scss';
+@import '../shared/_rangeslider.scss';
+@import '../shared/_bg.scss';
+@import '../shared/_custom-scrollbar.scss';
+@import "../shared/_utils.scss";
+@import "../shared/_media.scss";
+@import "../shared/_text-expander.scss";
+
+//
+// Skinning
+// --------------------------------------------------
+
+@import "../skinning/_select2.scss";
+@import "../skinning/_pnotify.scss";
+@import "../skinning/_fileupload.scss";
+@import "../skinning/_summernote.scss";
+
+
+//
+// Main styles
+// --------------------------------------------------
+
+@import "_admin.scss";
+@import "_dashboard.scss";
+@import "../components/datagrid/datagrid.scss";
+
+
+
+//
+// Custom imports from modules
+// --------------------------------------------------
+
+@import '/.app/moduleimports.scss';

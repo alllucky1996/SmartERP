@@ -1,0 +1,76 @@
+﻿@model CategoryListModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.Categories.Manage").Value;
+
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+    var canEdit = (bool)ViewBag.CanEdit;
+}
+
+@*INFO: please no sticky header here ('nofix'). It blocks the browser from auto scrolling during drag and drop.*@
+<div class="section-header nofix">
+    <div class="title">
+        <i class="fa fa-sitemap"></i>
+        <span>@ViewBag.Title</span>
+        <div class="btn-group ml-2">
+            <a asp-action="List" class="btn btn-outline-secondary btn-sm tooltip-toggle" title="@T("Admin.Catalog.Categories.SwitchToListView")">
+                <i class="fa fa-bars"></i>
+            </a>
+            <a class="btn btn-outline-secondary btn-sm tooltip-toggle active" style="cursor:default" href="javascript:;">
+                <i class="fa fa-sitemap"></i>
+            </a>
+        </div>
+    </div>
+    <div class="options">
+		<zone name="admin_button_toolbar_before" />
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fa fa-plus"></i>
+            <span>@T("Admin.Common.AddNew")…</span>
+        </a>
+
+		<zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<div sm-if="!isSingleStoreMode" class="row">
+    <div class="col-sm-3">
+        <div class="form-group">
+            <smart-label asp-for="SearchStoreId" />
+            <div class="form-row">
+                <div class="col">
+                    <editor asp-for="SearchStoreId" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="category-tree"></div>
+
+<script sm-target-zone="scripts" data-origin="category-tree">
+    $(function() {
+        var treeUrl = '@Url.Action("CategoryTree")';
+
+        // Init category tree.
+        initTree(treeUrl);
+
+        // Filter by store ID.
+        $('#@Html.IdFor(model => model.SearchStoreId)').on('change', function() {
+            $('#category-tree').tree('destroy');
+
+            initTree(treeUrl + '?searchStoreId=' + $(this).val());
+        });
+
+        function initTree(url) {
+            $('#category-tree').tree('init', {
+                url: url,
+                dropUrl: '@Url.Action("TreeDrop")',
+                dragAndDrop: @canEdit.ToString().ToLower(),
+                defaultCollapsedIconClass: 'fas fa-fw fa-folder text-success',
+                defaultExpandededIconClass: 'fas fa-fw fa-folder-open text-success',
+                noDataNote: @T("Admin.Catalog.Categories.NoCategories").JsValue
+            });
+        }
+    });
+</script>

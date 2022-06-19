@@ -1,0 +1,17 @@
+﻿@model IRuleExpression
+
+@{
+    var metadata = Model.Descriptor.Metadata;
+    var id = "rule-value-" + Model.Id;
+}
+
+@*INFO: onRuleValueChanged (enables save button) called by handler in smartstore.rules.js.*@
+<input type="number"
+       id="@id"
+       name="@id"
+       value="@Model.RawValue"
+       placeholder="@T("Common.Empty")"
+       min="@metadata.Get("min")"
+       max="@metadata.Get("max")"
+       step="@(metadata.Get("step") ?? "1")"
+       class="form-control" />

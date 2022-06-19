@@ -1,0 +1,72 @@
+﻿@using Smartstore.Web.Rendering.Menus
+@using Smartstore.Collections
+@using Smartstore.Core.Content.Menus
+
+@model MenuModel
+
+@{
+    Layout = "";
+
+    if (Model.Root == null)
+    {
+        return;
+    }
+
+    var cutOffItems = Model.Root.Children
+        .Where(x => x.Value.Id != "brand" && x.GetMetadata<bool>("spare", false))
+        .ToList();
+}
+
+<div class="megamenu simple">
+
+    @*TODO: (core) Find a better solution, maybe by extending ViewExpander *@
+
+    @{ await Html.RenderPartialAsync("Components/Menu/Navbar", Model); }
+</div>
+
+<div class="megamenu-dropdown-container simple">
+    @foreach (var node in Model.Root.Children)
+    {
+        <div id="dropdown-menu-@node.Value.Id" data-id="@node.Value.Id">
+            @{ await CreateDrilldownMenuAsync(node.Children, true); }
+        </div>
+    }
+
+    <div sm-if="cutOffItems.Any()" id="dropdown-menu--1" data-id="-1">
+        @{ await CreateDrilldownMenuAsync(cutOffItems, true); }
+    </div>
+</div>
+
+@{
+    async Task CreateDrilldownMenuAsync(IEnumerable<TreeNode<MenuItem>> nodes, bool isRoot)
+    {
+        if (isRoot)
+        {
+            @Html.Raw("<div class='dropdown-menu'>")
+        }
+
+        foreach (var node in nodes.Where(x => x.Value.Visible))
+        {
+            var item = node.Value;
+            var itemUrl = item.GenerateUrl(this.ViewContext);
+            var itemState = node.GetNodePathState(Model.Path);
+
+            var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " selected" : ""));
+            
+            <a href="@itemUrl" id="dropdown-item-@item.Id" data-id="@item.Id" attrs="@attrs" >
+                <span sm-language-attributes-for="item">@item.Text</span>
+            </a>
+        }
+
+        if (isRoot)
+        {
+            @Html.Raw("</div>")
+        }
+    }
+}
+
+<script>
+    $(function () {
+        $(".megamenu-container").megaMenu();
+    });
+</script>

@@ -1,0 +1,44 @@
+﻿@using Smartstore.Admin.Models.Stores
+
+@model StoreModel
+
+<datagrid id="stores-grid" allow-resize="true">
+    <datasource read="@Url.Action("StoreList", "Store")" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="2fr" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Url" width="2fr">
+            <display-template>
+                <a :href="item.value" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Hosts" wrap="true">
+            <display-template>
+                <div class="text-truncate">
+                    <div v-for="host in item.row.HostList" class="text-truncate">{{ host }}</div>
+                </div>
+            </display-template>
+        </column>
+        <column for="ContentDeliveryNetwork" />
+        <column for="SslEnabled" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+</datagrid>

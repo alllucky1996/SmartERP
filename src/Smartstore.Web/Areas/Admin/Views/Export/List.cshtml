@@ -1,0 +1,241 @@
+﻿@model List<ExportProfileModel>
+
+@{
+    ViewBag.Title = T("Common.Export").Value;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-upload"></i>
+        <span>@T("Common.Export")</span>
+    </div>
+    <div class="options">
+		<a href="#" data-url="@Url.Action("Create")" class="btn btn-primary export-profile-button">
+			<i class="fa fa-plus"></i>
+			<span>@T("Admin.DataExchange.AddNewProfile")</span>
+		</a>
+    </div>
+</div>
+
+<div id="export-profile-lists">
+    <partial name="_ProfileList" model="Model.Where(x => !x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { ["IsSystemProfile"] = false }' />
+    <partial name="_ProfileList" model="Model.Where(x => x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { ["IsSystemProfile"] = true }' />
+</div>
+
+<modal id="export-profile-dialog" sm-render-at-page-end="true" sm-size="Large">
+	<modal-header sm-title="@T("Admin.DataExchange.AddNewProfile")"></modal-header>
+    <modal-body></modal-body>
+    <modal-footer>
+		<button class="btn btn-secondary btn-flat" data-dismiss="modal"><span>@T("Common.Cancel")</span></button>
+		<button class="btn btn-primary"><span>@T("Common.OK")</span></button>
+    </modal-footer>
+</modal>
+
+<modal id="export-profile-file-dialog" sm-render-at-page-end="true" sm-size="FlexSmall">
+    <modal-header sm-title="@T("Admin.DataExchange.Export.ExportFiles")"></modal-header>
+    <modal-body></modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary btn-flat" data-dismiss="modal"><span>@T("Common.Cancel")</span></button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="ExportList">
+    $(function() {
+		var dialog = $('#export-profile-dialog');
+		var executedProfileId = '@(TempData["ExecutedProfileId"] as string)';
+
+		if (executedProfileId) {
+            $('body, html').animate({ scrollTop: $('#export-profile-' + executedProfileId).offset().top - 70 }, 'slow');
+		}
+
+        // Show profile dialog.
+        $(document).on('click', '.export-profile-button', function (e) {
+            e.preventDefault();
+
+            dialog.find('.modal-body').empty();
+            dialog.find('.btn-primary').toggle(false);
+
+            $(this).ajax({
+				type: 'GET',
+				smallIcon: dialog.find('.modal-body'),
+				success: function (response) {
+					dialog.find('.modal-body').html(response);
+
+					$('select[name="ProviderSystemName"]').selectWrapper({
+						minimumResultsForSearch: 16,
+						templateResult: providerSelectItemFormatting,
+						templateSelection: providerSelectItemFormatting
+					});
+
+					toggleProviderDescription();
+
+					$('select[name="CloneProfileId"]').selectWrapper({
+						allowClear: true,
+						minimumResultsForSearch: 16,
+						templateResult: profileSelectItemFormatting,
+						templateSelection: profileSelectItemFormatting
+					});
+				},
+				complete: function () {
+					dialog.find('.btn-primary').toggle(true);
+				}
+			});
+
+            dialog.modal();
+            return false;
+        });
+
+        // Show profile file dialog.
+        $(document).on('click', '.export-file-count', function (e) {
+            e.preventDefault();
+
+            var fileDialog = $('#export-profile-file-dialog');
+            var id = $(this).closest('.profile-row').attr('data-profile-id');
+
+            fileDialog.find('.modal-body').empty();
+
+            $({}).ajax({
+				type: 'GET',
+				url: '@Url.Action("ProfileFileDetails")?deploymentId=0&profileId=' + id,
+				smallIcon: fileDialog.find('.modal-body'),
+				success: function (response) {
+					fileDialog.find('.modal-body').html(response);
+				}
+			});
+
+            fileDialog.modal();
+            return false;
+        });
+
+		// Add export profile.
+		dialog.on('click', '.btn-primary', function () {
+			var form = dialog.find('.export-profile-form');
+
+			if (!form.length) {
+				dialog.modal('hide');
+			}
+			else {
+				form.submit();
+			}
+		});
+
+		// Toggle provider description.
+		$(document).on('change', 'select[name="ProviderSystemName"]', toggleProviderDescription);
+
+		function toggleProviderDescription() {
+			dialog.find('.export-provider-description').hide();
+
+			var option = dialog.find('select[name="ProviderSystemName"]').find(':selected');
+			$('#ExportProviderDescription' + option.attr('data-id')).fadeIn('fast');
+		}
+
+		function providerSelectItemFormatting(item) {
+			try {
+				var option = $(item.element);
+
+				// item.element is undefined for selection formatting.
+				if (option.length === 0) {
+					option = $('select[name="ProviderSystemName"]').find('option[value="' + item.id + '"]');
+				}
+
+				var html = '<div class="form-row flex-nowrap align-items-center">';
+				var imageUrl = option.data('imageurl');
+
+				if (imageUrl) {
+					html += '<div class="col" style="max-width:48px; width:48px"><div class="img-center-container"><img class="img-fluid" src="' + imageUrl + '" /></div></div>';
+				}
+
+				html += '<div class="col">';
+				html += '<div class="fs-xs font-weight-medium" style="line-height:1.2">' + item.text + '</div>';
+				html += '<div class="text-muted fs-xs">' + option.attr('value') + '</div>';
+				html += '</div>';
+				html += '</div>';
+
+				return $(html);
+			}
+			catch (e) { }
+
+			return item.text;
+		}
+
+		function profileSelectItemFormatting(item) {
+			try {
+				var option = $(item.element);
+
+				// item.element is undefined for selection formatting.
+				if (option.length === 0) {
+					option = $('select[name="CloneProfileId"]').find('option[value="' + item.id + '"]');
+				}
+
+				var html = '<div class="form-row flex-nowrap align-items-center h-100">';
+				var imageUrl = option.data('imageurl');
+
+				if (imageUrl) {
+					html += '<div class="col" style="max-width:48px; width:48px"><div class="img-center-container"><img class="img-fluid" src="' + imageUrl + '" /></div></div>';
+				}
+
+				html += '<div class="col">';
+				html += '<div class="fs-xs font-weight-medium" style="line-height:1.2">' + item.text + '</div>';
+				if (option.attr('data-systemname')) {
+					html += '<div class="text-muted fs-xs">' + option.attr('data-systemname') + '</div>';
+				}
+
+				html += '</div>';
+				html += '</div>';
+
+				return $(html);
+			}
+			catch (e) { }
+
+			return item.text;
+		}
+
+		// Start export task.
+		$(document).on('click', '.btn-run-task', function (e) {
+			e.preventDefault();
+            $(this).postData({
+                ask: @T("Admin.Common.AskToProceed").JsValue
+			});
+			return false;
+		});
+
+		Smartstore.Admin.TaskWatcher.startWatching({
+			context: $('#export-profile-lists'),
+			elementsSelector: '.task-progress',
+			defaultProgressMessage: @T("Admin.System.ScheduleTasks.RunNow.IsRunning").JsValue,
+			pollUrl: '@Url.Action("GetRunningTasks", "Scheduling")',
+			onTaskStarted: function (task, el) {
+				var tr = el.closest('tr');
+
+				tr.find('.btn-run-task').addClass('hide');
+				tr.find('.btn-cancel-task').removeClass('hide');
+				tr.find('.btn-log').addClass('hide');
+				tr.find('.next-run-info').addClass('hide');
+			},
+			onTaskCompleted: function (taskId, el) {
+				var tr = el.closest('tr');
+				var profileId = tr.data('profile-id');
+
+				tr.find('.btn-run-task').removeClass('hide');
+				tr.find('.btn-cancel-task').addClass('hide');
+				tr.find('.btn-log').removeClass('hide');
+
+				$.ajax({
+					cache: false,
+					global: false,
+					type: 'POST',
+					url: '@Url.Action("GetTaskRunInfo", "Scheduling")',
+					data: { id: taskId },
+					success: function (data) {
+						tr.find('.next-run-info').html(data.nextRunHtml).removeClass('hide');
+						tr.find('.last-run-info').html(data.lastRunHtml);
+					}
+				});
+
+				$.get('@Url.Action("ProfileFileCount")?profileId=' + profileId, function (response) {
+					$('#ExportFileCount' + profileId).html(response || '');
+				});
+			}
+		});
+    });
+</script>

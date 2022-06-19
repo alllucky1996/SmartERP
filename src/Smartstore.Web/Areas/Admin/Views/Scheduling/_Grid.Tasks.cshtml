@@ -1,0 +1,60 @@
+﻿@model TaskModel
+
+<datagrid id="tasks-grid" 
+        striped="false"
+		allow-resize="true" 
+		allow-column-reordering="true" 
+		preserve-grid-state="true"
+        onrowclass="tasksGrid_onRowClass">
+	<datasource read="@Url.Action("TaskList")" />
+    @* TODO: (core) Change paging-Tag after DataGrid has been refactored due to pager-bar glitch *@
+    <paging enabled="false" position="Top" />
+	<columns>
+        <column for="Name" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a>
+            </display-template>
+        </column>
+        <column for="Enabled" halign="center"></column>
+        <column for="CronExpression">
+            <display-template>
+                <div class="dg-cell-value">
+                    <div class="text-truncate">{{ item.value }}</div>
+                    <div v-if="item.row.CronDescription.length > 0" class="text-truncate text-muted">{{ item.row.CronDescription }}</div>
+                </div>
+            </display-template>
+        </column>
+        <column for="LastRunInfo" width="300px">
+            <display-template>
+                <div class="last-run-info text-truncate" v-html="item.value"></div>
+            </display-template>
+        </column>
+        <column for="NextRunInfo" width="300px">
+            <display-template>
+                <div class="dg-cell-value">
+                    <div class="next-run-info text-truncate" v-html="item.value"></div>
+                    <div class="task-progress text-muted text-truncate"
+                         v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }"
+                         :data-task-id="item.row.Id"
+                         :data-running='item.row.LastExecutionInfo.IsRunning ? "true" : "false"'></div>
+                </div>
+            </display-template>
+        </column>
+	</columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a v-bind:class="{ hide: item.row.LastExecutionInfo.IsRunning }" datarow-action="DataRowAction.Custom" :href="item.row.ExecuteUrl" class="btn-run-task" :data-task-id="item.row.Id">
+            @T("Admin.System.ScheduleTasks.RunNow")</a>
+        <a v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }" datarow-action="DataRowAction.Custom" :href="item.row.CancelUrl" class="btn-cancel-task confirm" :data-task-id="item.row.Id"
+            data-confirm-message="@T("Admin.Common.AreYouSure")">
+            @T("Common.Cancel")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="tasks-grid">
+    function tasksGrid_onRowClass(row) {
+        return {
+            "text-muted inactive": !row.Enabled 
+        };
+    }
+</script>

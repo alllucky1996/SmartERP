@@ -1,0 +1,18 @@
+﻿@model TaskModel
+
+@if (Model.NextRun.HasValue)
+{
+	if (Model.IsOverdue)
+	{
+		<span class="text-success"><strong>@Model.NextRunPretty</strong></span>
+	}
+	else
+	{
+		<div>@Model.NextRun.Value.ToString("g")</div>
+		<div class="text-muted">@Model.NextRunPretty</div>		
+	}
+}
+else
+{
+	<div class="text-muted">@T("Common.Never")</div>
+}

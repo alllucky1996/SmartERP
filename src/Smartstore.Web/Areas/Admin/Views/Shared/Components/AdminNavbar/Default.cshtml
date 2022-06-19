@@ -1,0 +1,144 @@
+﻿@using Smartstore.Core.Stores;
+@using Smartstore.Core.Packaging;
+
+@{
+    var currentCustomer = this.WorkContext.CurrentCustomer;
+    var currentLanguage = this.WorkContext.WorkingLanguage;
+    var userName = (string)ViewBag.UserName;
+    var stores = ((ICollection<Store>)ViewBag.Stores) ?? new List<Store>();
+    string currentLanguageCode = currentLanguage.UniqueSeoCode.EmptyNull().ToLower();
+    string communityUrl = (currentLanguageCode == "de" ?
+        "http://community.smartstore.com" :
+        "http://community.smartstore.com/index.php?/&k=880ea6a14ea49e853634fbdc5015a024&setlanguage=1&cal_id=&langid=1");
+    string docsUrl = Display.GenerateHelpUrl("");
+    var checkUpdateResult = ViewBag.CheckUpdateResult as CheckUpdateResult;
+}
+
+<link sm-target-zone="head_links" as="image" rel="preload" href="~/images/smartstore.svg" />
+
+<nav id="navbar" class="navbar navbar-slide navbar-dark navbar-expand">
+    <a class="navbar-brand mx-0 mr-3" asp-action="Index" asp-controller="Home" asp-area="Admin">
+        <img class="navbar-img d-none d-lg-block" src="~/images/smartstore.svg" alt="Smartstore" />
+        <img class="navbar-img d-lg-none" src="~/images/smartstore-icon.svg" alt="Smartstore" />
+    </a>
+
+    <div id="navbar-menu" class="collapse navbar-collapse mr-auto">
+        <zone name="admin_menu_before"></zone>
+        <menu name="Admin" template="Admin"></menu>
+        <zone name="admin_menu_after"></zone>
+    </div>
+
+    <div class="collapse navbar-collapse ml-auto">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle navbar-tool" href="javascript:void(0)" title='@T("Admin.Common.Actions")' data-toggle="dropdown">
+                    <i class="icm icm-cog navbar-icon"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @foreach (var store in stores)
+                    {
+                        <a class="dropdown-item" href="@store.Url" title="@T("Admin.Header.PublicStore") - @store.Name">
+                            <bootstrap-icon name="shop-window" class="bi-fw" />
+                            @store.Name.Truncate(32, "...")
+                        </a>
+                    }
+                    <a class="dropdown-item" href='@Url.Action("Preview", "Theme")'>
+                        <bootstrap-icon name="eye" class="bi-fw" />
+                        @T("Admin.Configuration.Themes.PreviewMode")
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" id="clear-cache" href="#" data-url="@Url.Action("ClearCache", "Maintenance", new { area = "Admin" })">
+                        <bootstrap-icon name="trash" class="bi-fw" />
+                        @T("Admin.Header.ClearCache")
+                    </a>
+                    <a class="dropdown-item" id="clear-database-cache" href="#" data-url="@Url.Action("ClearDatabaseCache", "Maintenance", new { area = "Admin" })">
+                        <i class="bi bi-fw"></i>
+                        @T("Admin.Header.ClearDbCache")
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" asp-action="RestartApplication" asp-controller="Maintenance" asp-area="Admin">
+                        <bootstrap-icon name="power" class="bi-fw" />
+                        @T("Admin.Header.RestartApplication")
+                    </a>
+                </div>
+            </li>
+
+            @await Component.InvokeAsync("AdminLanguageSelector")
+
+            <li id="navtool-help" class="nav-item dropdown d-none d-md-block">
+                <a class="nav-link dropdown-toggle navbar-tool" href="javascript:void(0)" title='@T("Admin.Help")' data-toggle="dropdown">
+                    <i class="icm icm-bubble-question navbar-icon"></i>
+                    @if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)
+                    {
+                        <span class="reddot" style="top: 25px; right: 7px"></span>
+                    }
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)
+                    {
+                        <a class="dropdown-item" asp-controller="Maintenance" asp-action="CheckUpdate">
+                            <bootstrap-icon name="arrow-90deg-up" class="bi-fw" />
+                            <strong>@T("Admin.CheckUpdate.UpdateAvailable")</strong>
+                            <span class="reddot" style="margin-left: 6px"></span>
+                        </a>
+                    }
+                    <a class="dropdown-item" href="@docsUrl" data-lang="@currentLanguageCode" target="help">
+                        <bootstrap-icon name="question-circle-fill" class="bi-fw" />
+                        @T("Admin.Help.Documentation")
+                    </a>
+                    <a class="dropdown-item" href="@communityUrl" data-lang="@currentLanguageCode" target="help">
+                        <bootstrap-icon name="chat-dots" class="bi-fw" />
+                        @T("Admin.Help.Forums")
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" asp-action="About" asp-controller="Home">
+                        <bootstrap-icon name="info-circle" class="bi-fw" />
+                        @T("Admin.Common.About")
+                    </a>
+                </div>
+            </li>
+
+            <li sm-if="currentCustomer != null && currentCustomer.IsRegistered()" class="nav-item dropdown ml-md-3">
+                <a id="current-user" class="nav-link dropdown-toggle navbar-tool" data-toggle="dropdown" title="@userName" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
+                    <i class="icm icm-user navbar-icon"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
+                        <bootstrap-icon name="person-circle" class="bi-fw" />
+                        <span>@T("Admin.Header.Account")</span> 
+                        <small class="text-muted ml-2">@currentCustomer.Username.Truncate(40, "…")</small>
+                    </a>
+                    <a class="dropdown-item" asp-route="Logout">
+                        <bootstrap-icon name="box-arrow-left" class="bi-fw" />
+                        @T("Admin.Header.Logout")
+                    </a>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+</nav>
+
+<script sm-target-zone="scripts" data-origin="admin-navbar">
+    @* TODO: (mh) (core) Move this to a js file *@
+    $(function () {
+		$("#clear-database-cache, #clear-cache").on('click', function (e) {
+            e.preventDefault();
+
+            $({}).ajax({
+                url: $(e.target).data("url"),
+                success: function (data) {
+					displayNotification(data.Message, 'success');
+					$(e.target).closest(".dropdown").dropdown('toggle');
+                }
+            });
+
+            return false;
+        });
+
+        // add mainmenu tooltips;
+        $('#tools [rel=tooltip]').tooltip({
+            placement: 'bottom'
+        });
+    });
+</script>

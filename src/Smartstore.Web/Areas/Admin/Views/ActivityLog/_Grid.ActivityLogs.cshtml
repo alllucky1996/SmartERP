@@ -1,0 +1,71 @@
+﻿@using Smartstore.Admin.Models.Logging
+
+@model ActivityLogModel
+
+@{
+    var parentModel = ViewData["Parent"] as ActivityLogListModel;
+}
+
+<form asp-action="DeleteAll">
+    <button class="d-none" id="clearall" value="clearall"></button>
+    <confirm button-id="delete-all" action="DeleteAll" />
+</form>
+
+<datagrid id="activity-log-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
+    <datasource read="@Url.Action("ActivityLogList", "ActivityLog")"
+                delete="@Url.Action("ActivityLogDelete", "ActivityLog")" />
+    <sorting enabled="true">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button type="submit" name="delete-all" id="delete-all" value="clearall" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.DeleteAll")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.ActivityLogs.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="ActivityLogTypeName" entity-member="ActivityLogType.Name" hideable="false" />
+        <column for="Comment" wrap="true" />
+        <column for="CustomerEmail" entity-member="Customer.Email" type="string">
+            <display-template>
+                <a :href="item.row.CustomerEditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="IsSystemAccount" halign="center" sortable="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="grid-activity-log">
+    $(function () {
+        // INFO: Little hack here to trigger form action whose button must be in the form element and can therefore not be in the grid directly.
+        $(document).on('click', '.confirmation-dialog .btn-accept', function (e) {
+            e.preventDefault();
+            $("#clearall").trigger("click");
+            return false;
+        });
+    });
+</script>

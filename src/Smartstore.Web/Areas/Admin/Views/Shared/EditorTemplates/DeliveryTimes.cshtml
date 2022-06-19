@@ -1,0 +1,41 @@
+﻿@using System.Globalization
+@using Smartstore.Utilities
+
+@functions
+{
+    private int[] Value
+    {
+        get
+        {
+            if (ViewData.Model is int[] intArray)
+            {
+                return intArray;
+            }
+            else if (ViewData.Model is int intValue)
+            {
+                return new[] { intValue };
+            }
+
+            return Array.Empty<int>();
+        }
+    }
+}
+
+@{
+    var strValue = string.Join(',', Value);
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+
+    attributes["data-select-url"] = Url.Action("AllDeliveryTimes", "DeliveryTime", new { selectedIds = strValue, area = "Admin" });
+    attributes["data-select-init-load"] = (Value.Length > 0).ToString().ToLower();
+
+    if (!attributes.ContainsKey("data-placeholder"))
+    {
+        attributes["data-placeholder"] = T("Common.Unspecified").Value;
+    }
+}
+<select asp-for="@Model" class="edit-control" attrs="attributes" data-editor="select">
+    @foreach (var val in Value)
+    {
+        <option selected value="@val">@val</option>
+    }
+</select>

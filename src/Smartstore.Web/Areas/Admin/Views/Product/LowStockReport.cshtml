@@ -1,0 +1,15 @@
+﻿@{
+    ViewBag.Title = T("Admin.Catalog.LowStockReport").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="far fa-chart-bar"></i>
+        <span>@ViewBag.Title</span>
+    </div>
+    <div class="options">
+    </div>
+</div>
+
+<partial name="Grids/_Grid.LowStockReport" model="null" />

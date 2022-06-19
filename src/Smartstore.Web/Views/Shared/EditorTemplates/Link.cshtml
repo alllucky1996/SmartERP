@@ -1,0 +1,157 @@
+﻿@using Smartstore.Utilities
+
+@functions
+{
+    private string Value => ViewData.Model != null ? Convert.ToString(ViewData.Model) : null;
+}
+
+@{
+    Assets.AppendScriptFiles("~/js/smartstore.linkbuilder.js");
+
+    var rtl = WorkContext.WorkingLanguage.Rtl;
+    var rnd = CommonHelper.GenerateRandomInteger();
+    var id = Html.IdForModel();
+    var metadata = LinkResolver.GetBuilderMetadata().ToDictionarySafe(x => x.Schema, StringComparer.OrdinalIgnoreCase);
+    var link = await LinkResolver.ResolveAsync(Value);
+    var expression = link.Expression;
+    var hideQueryString = GetMetadata<bool>("hideQueryString");
+    var arr = GetMetadata<string>("allowedSchemas").SplitSafe(',').Select(x => x.ToLowerInvariant());
+    var allowedSchemas = arr.Any() ? arr : metadata.Keys;
+}
+
+<div id="link-builder-@rnd" class="link-builder edit-control"
+     data-field-id="@id"
+     data-editor="link"
+     data-current-type="@(Value != null ? expression.Schema : string.Empty)">
+
+    @* Template control that receives the link expression. *@
+    <input asp-for="@Model" type="hidden" value="@Value" />
+
+    <div class="row flex-nowrap xs-gutters">
+
+        @* 1. prepend type selector. *@
+        <div class="link-type-container col-auto">
+            <button type="button" class="btn btn-secondary btn-linktype btn-icon dropdown-toggle" data-toggle="dropdown" title="">
+                <i class="fa fa-link"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-@(rtl ? "right" : "left")">
+                @foreach (var schema in allowedSchemas)
+                {
+                    var info = metadata[schema];
+                    <a class="dropdown-item link-type" href="#" data-type="@schema">
+                        <i class="fa-fw @info.Icon"></i>
+                        <span>@T(info.ResKey)</span>
+                    </a>
+                }
+            </div>
+        </div>
+
+        @* 2. main control. *@
+        @foreach (var schema in allowedSchemas)
+        {
+            var info = metadata[schema];
+            var label = expression.Schema == schema ? link.Label : string.Empty;
+            var value = expression.Schema == schema && expression.Target != null 
+                ? (link.EntityId.HasValue ? link.EntityId.Value.ToStringInvariant() : expression.Target.EmptyNull()) 
+                : string.Empty;
+
+            <div class="link-control col" attr-class='(expression.Schema != schema, "hide")' data-type="@schema">
+                @if (info.Widget != null)
+                {
+                    @await info.Widget.InvokeAsync(ViewContext, (link, label, value))
+                }
+                else if (schema == DefaultLinkProvider.SchemaProduct)
+                {
+                    <div class="input-group">
+                        <input type="text" class="form-control resettable product-picker-input bg-white text-muted" value="@label" readonly />
+                        <div class="input-group-append">
+                            <entity-picker max-items="1"
+                                           onselectioncompleted="lbPickerSelectionCompleted@(rnd.ToString())"
+                                           append-mode="false"
+                                           icon-css-class=""
+                                           dialog-title=@T("Common.Entity.SelectProduct").JsValue
+                                           caption="&hellip;" />
+                        </div>
+                    </div>       
+                }
+                else if (schema == DefaultLinkProvider.SchemaCategory)
+                {
+                    <select class="form-control transferable resettable"
+                            data-select-url="@Url.Action("AllCategories", "Category", new { area = "Admin" })"
+                            data-select-selected-id="@value"
+                            data-select-init-text="@label"></select>
+                }
+                else if (schema == DefaultLinkProvider.SchemaManufacturer)
+                {
+                    <select class="form-control transferable resettable"
+                            data-select-url="@Url.Action("AllManufacturers", "Manufacturer", new { area = "Admin" })"
+                            data-select-selected-id="@value"
+                            data-select-init-text="@label"></select>
+                }
+                else if (schema == DefaultLinkProvider.SchemaTopic)
+                {
+                    <select class="form-control transferable resettable"
+                            data-select-url="@Url.Action("AllTopics", "Topic", new { area = "Admin" })"
+                            data-select-selected-id="@value"
+                            data-select-init-text="@label"></select>
+                }
+                else if (schema == "url")
+                {
+                    <input type="text" class="form-control transferable resettable" value="@value" />
+                }
+                else if (schema == "file")
+                {
+                    <div class="input-group">
+                        <input id="lb-file-url-@rnd" type="text" class="form-control transferable resettable bg-white text-muted" value="@label" readonly />
+                        <div class="input-group-append">
+                            <a href="javascript:;" class="btn btn-secondary browse-files" data-file-manager-url="@Display.GetFileManagerUrl()" data-field-id="lb-file-url-@rnd">
+                                <i class="fa fa-upload"></i>
+                                <span>@(T("Common.BrowseFiles"))&hellip;</span>
+                            </a>
+                        </div>
+                    </div>         
+                }
+            </div>
+        }
+
+        @* 4. append additional buttons. *@
+        <div class="col-auto">
+            <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" title="@T("Common.Remove")">
+                <i class="fa fa-unlink"></i>
+                @*<span class="fs-h5" style="line-height: 1">&times;</span>*@
+            </button>
+            @if (!hideQueryString)
+            {
+                <button type="button" class="btn btn-secondary btn-icon btn-query-string" attr-class='(expression.Schema == "url", "hide")'
+                        title="@T("Common.QueryString")" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-question-circle @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <div class="px-2">
+                        <input type="text" class="form-control transferable resettable query-string" value="@expression.Query.TrimStart('?')" placeholder="@T("Common.QueryString")" style="width: 350px;" />
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (allowedSchemas.Contains(DefaultLinkProvider.SchemaProduct))
+{
+    <script>
+        function lbPickerSelectionCompleted@(rnd)(ids, selectedItems) {
+            var cnt = $("#link-builder-@rnd");
+            var val = 'product:' + ids[0];
+            var qs = cnt.find(".query-string").val() || '';
+            while (qs.startsWith('?')) {
+                qs = qs.substring(1);
+            }
+            if (!_.isEmpty(qs)) {
+                val = val + '?' + qs;
+            }
+            $('#@id').val(val).trigger("change");
+            cnt.find(".product-picker-input").val(selectedItems[0].name);
+            return true;
+        }
+    </script>
+} 

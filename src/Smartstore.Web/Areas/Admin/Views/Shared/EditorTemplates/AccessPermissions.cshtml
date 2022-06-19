@@ -1,0 +1,46 @@
+﻿@using System.Globalization
+@using Smartstore
+@using Smartstore.Utilities
+
+@functions
+{
+    private string Value
+    {
+        get
+        {
+            if (ViewData.Model != null)
+            {
+                // Be careful with the conversion here because it's very vulnerable to errors.
+                if (ViewData.Model is int[])
+                {
+                    return string.Join(",", ViewData.Model);
+                }
+
+                if (CommonHelper.TryConvert(ViewData.Model, typeof(string), CultureInfo.InvariantCulture, out object obj) && obj != null)
+                {
+                    return obj.ToString();
+                }
+            }
+
+            return null;
+        }
+    }
+}
+
+@{
+    var strValue = Value;
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+
+    attributes["data-select-url"] = Url.Action("AllAccessPermissions", "Security", new { selected = strValue, area = "Admin" });
+    attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
+
+    if (!attributes.ContainsKey("data-placeholder"))
+    {
+        attributes["data-placeholder"] = T("Common.Unspecified").Value;
+    }
+    if (!attributes.ContainsKey("multiple"))
+    {
+        attributes["multiple"] = "multiple";
+    }
+}
+<select asp-for="@Model" class="edit-control" attrs="attributes" data-editor="select"></select>

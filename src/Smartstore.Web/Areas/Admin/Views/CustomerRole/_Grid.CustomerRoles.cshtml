@@ -1,0 +1,56 @@
+﻿@model CustomerRoleModel
+
+<datagrid id="customer-roles-grid"
+          key-member="Id"
+          allow-edit="true"
+          allow-resize="true"
+          allow-column-reordering="true"
+          preserve-grid-state="true"
+          onrowclass="rolesGrid_onRowClass">
+    <datasource read="@Url.Action("RoleList")" update="@Url.Action("RoleUpdate")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="Name" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")…</span>
+            </a>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+    </row-commands>
+    <columns>
+        <column for="Id" visible="false" resizable="false" type="string" readonly="true" />
+        <column for="Name" readonly="true" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="SystemName" readonly="true" />
+        <column for="Active" halign="center" />
+        <column for="TaxExempt" halign="center" />
+        <column for="FreeShipping" halign="center" />
+        <column for="IsSystemRole" readonly="true" halign="center" />
+        <column for="OrderTotalMinimum" halign="flex-end" visible="false" />
+        <column for="OrderTotalMaximum" halign="flex-end" visible="false" />
+    </columns>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="roles-grid">
+    function rolesGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.Active
+        };
+    }
+</script>

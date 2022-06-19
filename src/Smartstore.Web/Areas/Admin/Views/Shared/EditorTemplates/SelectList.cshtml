@@ -1,0 +1,15 @@
+﻿@{
+    var multiple = GetMetadata<string>("multiple");
+    var dataTags = GetMetadata<string>("data_tags");
+    var selectOptions = GetMetadata<IList<ExtendedSelectListItem>>("selectOptions", new List<ExtendedSelectListItem>());
+    var name = Html.NameForModel();
+    var id = Html.GenerateIdFromName(name);
+}
+
+<select id="@id" name="@name" class="form-control" attr-multiple='(multiple.HasValue(), "multiple")' attr-data-tags='(dataTags.HasValue(), dataTags)'>
+    @foreach (var item in selectOptions)
+    {
+        var hint = item.Get<string>("hint");
+        <option value="@item.Value" attr-selected='(item.Selected, "selected")' attr-data-hint='(hint.HasValue(), hint)'>@item.Text</option>
+    }
+</select>

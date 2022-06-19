@@ -1,0 +1,79 @@
+﻿@using Smartstore.Web.Models.Cart;
+@using System.Web;
+
+@model EstimateShippingModel
+
+@{ 
+	if (!Model.Enabled)
+	{
+		return;
+	}
+
+	var isExpanded = Model.ShippingOptions.Any();
+}
+
+<div class="cart-action cart-action-shipping">
+	<h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-shipping-body" aria-controls="cart-action-shipping-body" aria-expanded="@isExpanded.ToString().ToLower()">
+		@T("ShoppingCart.EstimateShipping")
+	</h5>
+
+    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-shipping-body" aria-expanded="@isExpanded.ToString().ToLower()">
+		@if (Model.Warnings.Any())
+		{
+			<div class="alert alert-danger">
+				@foreach(var warning in Model.Warnings)
+				{
+					<p>@warning</p>
+				}
+			</div>
+        }
+        else if (Model.ShippingOptions.Count == 0)
+        {
+			<div class="alert alert-info">@T("ShoppingCart.EstimateShipping.Tooltip")</div>
+		}
+
+		<div sm-if="isExpanded" class="alert alert-success">
+			@foreach (var shippingOption in Model.ShippingOptions)
+			{
+				<div class="shipping-option-item mb-2">
+					<div class="option-name font-weight-medium">
+						@Html.Raw(HttpUtility.HtmlDecode(shippingOption.Name))
+						(@shippingOption.Price)
+					</div>
+					<div class="option-description">
+						@Html.Raw(shippingOption.Description)
+					</div>
+				</div>
+			}
+		</div>
+		
+        <div class="shipping-options">
+            <div class="form-group">
+                <label asp-for="CountryId"></label>
+                <select asp-for="CountryId" asp-items="Model.AvailableCountries"
+                        class="noskin country-input country-selector"
+                        data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
+                        data-states-ajax-url="@Url.Action("StatesByCountryId", "Common")"
+                        data-addEmptyStateIfRequired="true"></select>
+                <span asp-validation-for="CountryId"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StateProvinceId"></label>
+                <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" class="noskin state-input"></select>
+                <span asp-validation-for="StateProvinceId"></span>
+            </div>
+            <div class="form-group">
+				<label asp-for="ZipPostalCode"></label>
+				<input type="text" asp-for="ZipPostalCode" class="zip-input" />
+				<span asp-validation-for="ZipPostalCode"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" name="estimateshipping" value="@T("ShoppingCart.EstimateShipping.Button")" class="btn btn-warning estimate-shipping-button" />
+            </div>
+        </div>
+
+        <div sm-if="Model.ShippingInfoUrl.HasValue()" class="text-muted mt-1">
+            @Html.Raw(T("ShoppingCart.ShippingInfoLink", Model.ShippingInfoUrl))
+        </div>
+    </div>
+</div>

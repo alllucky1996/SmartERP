@@ -1,0 +1,34 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model QueuedEmailListModel
+
+@{
+    ViewBag.Title = T("Admin.System.QueuedEmails").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<form method="post" asp-action="List">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-envelope"></i>
+            @T("Admin.System.QueuedEmails")
+        </div>
+        <div class="options">
+            <div class="input-group d-inline-flex mr-3" style="width: 400px">
+                <input asp-for="GoDirectlyToNumber" type="text" placeholder="@T("Admin.System.QueuedEmails.List.GoDirectlyToNumber")" />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-secondary" id="go-to-email-by-number" name="go-to-email-by-number" value="go-to-email-by-number" title="@T("Admin.System.QueuedEmails.List.GoDirectlyToNumber.Hint")">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" id="delete-all" name="delete-all" value="delete-all" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.DeleteAll")</span>
+            </button>
+            <confirm button-id="delete-all" action="DeleteAll" message="@T("Admin.System.QueuedEmails.DeleteAll.Confirm")" />
+        </div>
+    </div>
+</form>
+
+<partial name="_Grid.QueuedEmails" model="null" />

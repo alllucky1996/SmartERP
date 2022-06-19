@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\Smartstore.Build\Smartstore.Common.props" />
+	
+	<PropertyGroup>
+		<RootNamespace>Smartstore.Web</RootNamespace>
+	</PropertyGroup>
+  
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="AutoprefixerHost" Version="3.0.17" />
+		<PackageReference Include="DouglasCrockford.JsMin" Version="2.1.0" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
+		<PackageReference Include="JavaScriptEngineSwitcher.V8" Version="3.17.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.4" />
+		<PackageReference Include="NUglify" Version="1.17.10" />
+		<PackageReference Include="SharpScss" Version="2.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
+		<ProjectReference Include="..\Smartstore\Smartstore.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>Smartstore.Web.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+</Project>

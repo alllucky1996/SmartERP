@@ -1,0 +1,102 @@
+﻿@using Smartstore.Admin.Models.Common
+
+@model QuantityUnitModel
+
+<datagrid id="quantity-unit-grid" 
+          allow-resize="true" 
+          allow-row-selection="true" 
+          allow-edit="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("QuantityUnitList", "QuantityUnit")"
+                delete="@Url.Action("QuantityUnitDelete", "QuantityUnit")" />
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a href="#" class="add-quantity-unit btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="Name" width="2fr" hideable="false">
+            <display-template>
+                <a href="#" class="grid-edit-quantity-unit text-truncate" :data-key="item.row.Id">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="NamePlural" title="@T("Common.Plural")" />
+        <column for="Description" />
+        <column for="DisplayOrder" halign="center" />
+        <column for="IsDefault" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-edit-quantity-unit" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsDefault }">@T("Common.SetDefault")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="quantity-unit-grid">
+    $(function () {
+        $(document).on('click', '.add-quantity-unit', function (e) {
+            e.preventDefault();
+
+            var href = "@Url.Content("~/Admin/QuantityUnit/CreateQuantityUnitPopup/")?btnId=btnRefresh&formId=quantity-units";
+            openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-edit-quantity-unit', function (e) {
+            e.preventDefault();
+
+            var id = $(this).data("key");
+            var href = "@Url.Content("~/Admin/QuantityUnit/EditQuantityUnitPopup/")" + id + "?btnId=btnRefresh&formId=quantity-units";
+            openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-set-default', function (e) {
+            e.preventDefault();
+            
+            $.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@(Url.Action("SetDefault", "QuantityUnit"))',
+				data: {
+					"id": $(this).data("key")
+				},
+                success: function () {
+                    window["quantity-unit-grid"].$children[0].read();
+                }
+            });
+
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefresh', function () {
+            window["quantity-unit-grid"].$children[0].read();
+            return false;
+        });
+    });
+</script>

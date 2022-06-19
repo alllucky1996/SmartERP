@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = T("Admin.System.ScheduleTasks").Value;
+
+	Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+		<i class="far fa-clock"></i>
+        <span>@T("Admin.System.ScheduleTasks")</span>
+    </div>
+</div>
+
+<partial name="_Grid.Tasks" model="null" />
+
+<script sm-target-zone="scripts" data-origin="tasks-list">
+	$(function () {
+		Smartstore.Admin.TaskWatcher.startWatching({
+			context: $('#tasks-grid'),
+			elementsSelector: '.task-progress',
+			defaultProgressMessage: @T("Admin.System.ScheduleTasks.RunNow.IsRunning").JsValue,
+			pollUrl: '@Url.Action("GetRunningTasks")',
+			onTaskStarted: function (task, el) {
+				var tr = el.closest('tr');
+				tr.find('.btn-run-task').addClass('hide').next().removeClass('hide');
+				tr.find('.next-run-info').addClass('hide');
+			},
+			onTaskCompleted: function (taskId, el) {
+				var tr = el.closest('tr');
+				tr.find('.btn-run-task').removeClass('hide').next().addClass('hide');
+
+				$.ajax({
+					cache: false,
+					global: false,
+					type: 'POST',
+					url: '@Url.Action("GetTaskRunInfo")',
+					data: { id: taskId },
+					success: function (data) {
+						tr.find('.next-run-info').html(data.nextRunHtml).removeClass("hide");
+						tr.find('.last-run-info').html(data.lastRunHtml);
+					}
+				});
+			}
+		});
+	});
+</script>

@@ -1,0 +1,169 @@
+﻿@model AddressModel
+
+<input type="hidden" asp-for="Id" />
+<input type="hidden" asp-for="CreatedOnUtc" />
+<input type="hidden" asp-for="TitleEnabled" />
+<input type="hidden" asp-for="FirstNameEnabled" />
+<input type="hidden" asp-for="LastNameEnabled" />
+<input type="hidden" asp-for="EmailEnabled" />
+<input type="hidden" asp-for="ValidateEmailAddress" />
+<input type="hidden" asp-for="CompanyEnabled" />
+<input type="hidden" asp-for="CompanyRequired" />
+<input type="hidden" asp-for="CountryEnabled" />
+<input type="hidden" asp-for="StateProvinceEnabled" />
+<input type="hidden" asp-for="CityEnabled" />
+<input type="hidden" asp-for="CityRequired" />
+<input type="hidden" asp-for="StreetAddressEnabled" />
+<input type="hidden" asp-for="StreetAddressRequired" />
+<input type="hidden" asp-for="StreetAddress2Enabled" />
+<input type="hidden" asp-for="StreetAddress2Required" />
+<input type="hidden" asp-for="ZipPostalCodeEnabled" />
+<input type="hidden" asp-for="ZipPostalCodeRequired" />
+<input type="hidden" asp-for="PhoneEnabled" />
+<input type="hidden" asp-for="PhoneRequired" />
+<input type="hidden" asp-for="FaxEnabled" />
+<input type="hidden" asp-for="FaxRequired" />
+
+<div class="adminContent">
+    <div sm-if="Model.TitleEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Title" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Title" />
+            <span asp-validation-for="Title"></span>
+        </div>
+    </div>
+    <div sm-if="Model.FirstNameEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="FirstName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="FirstName" />
+            <span asp-validation-for="FirstName"></span>
+        </div>
+    </div>
+    <div sm-if="Model.LastNameEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="LastName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="LastName" />
+            <span asp-validation-for="LastName"></span>
+        </div>
+    </div>
+    <div sm-if="Model.EmailEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Email" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Email" />
+            <span asp-validation-for="Email"></span>
+        </div>
+    </div>
+    <div sm-if="Model.ValidateEmailAddress" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="EmailMatch" />
+        </div>
+        <div class="adminData">
+            <input asp-for="EmailMatch" />
+            <span asp-validation-for="EmailMatch"></span>
+        </div>
+    </div>
+    <div sm-if="Model.CompanyEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Company" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Company" />
+            <span asp-validation-for="Company"></span>
+        </div>
+    </div>
+    <div sm-if="Model.CountryEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CountryId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="CountryId" asp-items="Model.AvailableCountries"
+                    class="country-input country-selector"
+                    data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
+                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { Area = string.Empty })"
+                    data-addEmptyStateIfRequired="true">
+            </select>
+            <span asp-validation-for="CountryId"></span>
+        </div>
+    </div>
+    <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="StateProvinceId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" data-select-selected-id="@Model.StateProvinceId"></select>
+            <span asp-validation-for="StateProvinceId"></span>
+        </div>
+    </div>
+    <div sm-if="Model.CityEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="City" />
+        </div>
+        <div class="adminData">
+            <input asp-for="City" />
+            <span asp-validation-for="City"></span>
+        </div>
+    </div>
+    <div sm-if="Model.StreetAddressEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Address1" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Address1" />
+            <span asp-validation-for="Address1"></span>
+        </div>
+    </div>
+    <div sm-if="Model.StreetAddress2Enabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Address2" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Address2" />
+            <span asp-validation-for="Address2"></span>
+        </div>
+    </div>
+    <div sm-if="Model.ZipPostalCodeEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ZipPostalCode" />
+        </div>
+        <div class="adminData">
+            <input asp-for="ZipPostalCode" />
+            <span asp-validation-for="ZipPostalCode"></span>
+        </div>
+    </div>
+    <div sm-if="Model.PhoneEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PhoneNumber" />
+        </div>
+        <div class="adminData">
+            <input asp-for="PhoneNumber" />
+            <span asp-validation-for="PhoneNumber"></span>
+        </div>
+    </div>
+    <div sm-if="Model.FaxEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="FaxNumber" />
+        </div>
+        <div class="adminData">
+            <input asp-for="FaxNumber" />
+            <span asp-validation-for="FaxNumber"></span>
+        </div>
+    </div>
+</div>
+
+@if (Model.CountryEnabled && Model.StateProvinceEnabled && Model.AvailableStates.Count == 0)
+{
+    <script sm-target-zone="scripts" data-origin="address-template">
+        $(function () {
+            // No state provinces provided -> trigger country change to load them via AJAX (see smartstore.common.js).
+            $('#@Html.IdFor(x => x.CountryId)').trigger('change');
+        });
+    </script>
+}

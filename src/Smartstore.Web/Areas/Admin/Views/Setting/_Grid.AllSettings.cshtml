@@ -1,0 +1,61 @@
+﻿@model SettingModel
+
+@{
+    var parentModel = ViewData["Parent"] as SettingListModel;
+}
+
+<datagrid id="all-settings-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
+    <datasource read="@Url.Action("SettingList", "Setting")"
+                update="@Url.Action("SettingUpdate", "Setting")"
+                delete="@Url.Action("SettingDelete", "Setting")"
+                insert="@Url.Action("SettingInsert", "Setting")" />
+    <sorting enabled="true">
+        <sort by="Name" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.AllSettings.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Name" width="350px" hideable="false" />
+        <column for="Value" width="1fr" hideable="false" wrap="true" />
+        <column for="StoreId" width="200px">
+            <display-template>
+                <div class="dg-cell-value">{{ item.row.Store }}</div>
+            </display-template>
+        </column>
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>

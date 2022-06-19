@@ -1,0 +1,38 @@
+﻿@model RuleSetModel
+
+@{
+    Layout = "_AdminPopupLayout";
+	ViewBag.Title = T("Admin.Common.Preview") + " - " + Model.Name;
+
+	Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+
+    string gridId = null;
+    switch (Model.Scope)
+    {
+        case RuleScope.Customer:
+        case RuleScope.Product:
+            gridId = Model.Scope.ToString();
+            break;
+    }
+}
+
+<div class="section-header">
+    <div class="title">
+        @ViewBag.Title
+    </div>
+</div>
+<div>
+    @if (gridId.HasValue())
+    {
+        <partial name="_Grid.Preview.@(gridId)" model="null" view-data="gridViewData" />
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            @T("Common.NoPreview")
+        </div>
+    }
+</div>

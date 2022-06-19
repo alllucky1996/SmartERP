@@ -1,0 +1,119 @@
+﻿@model ProductVariantAttributeCombinationModel
+
+@{
+    var parentModel = ViewData["Parent"] as ProductModel;
+}
+
+<datagrid id="attributecombinations-grid"
+          allow-edit="true"
+          allow-resize="true"
+          allow-row-selection="true" 
+          allow-column-reordering="true"
+          max-height="800px"
+          onrowclass="attributeCombinations_onRowClass">
+    <datasource read="@Url.Action("ProductVariantAttributeCombinationList", new { productId = parentModel.Id })"
+                delete="@Url.Action("ProductVariantAttributeCombinationDelete")" />
+    <paging position="Both" page-index="1" />
+    <sorting enabled="true"></sorting>
+    <toolbar>
+        <toolbar-group>
+            <button type="button" class="add-new-combination btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AddNew")</span>
+            </button>
+            <button type="button" id="btnCreateAllCombinations" class="btn btn-warning no-anims btn-flat"
+                    data-url='@Url.Action("CreateAllAttributeCombinations", new { productId = parentModel.Id })'
+                    data-ask="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AskToCombineAll")">
+                <i class="fa fa-tasks"></i>
+                <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CreateAllCombinations")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button type="button" id="btnDeleteAllCombinations" class="btn btn-light btn-flat mr-auto" v-if="grid.rows.length > 0"
+                    data-url='@Url.Action("DeleteAllAttributeCombinations", new { productId = parentModel.Id })'
+                    data-ask="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AskToDeleteAll")">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.DeleteAllCombinations")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="AttributesXml" hideable="false" width="4fr" sortable="false">
+            <display-template>
+                <div class="flex-row flex-column-reverse">
+                    <a href="#" class="text-truncate grid-edit-attribute-combination" :data-key="item.row.Id" v-html="item.value"></a>
+                    <div v-if="item.row.Warnings.length > 0" style="color: red">
+                        <div v-for="item in item.row.Warnings">
+                            {{ item }}
+                        </div>
+                    </div>
+                </div>
+            </display-template>
+        </column>
+        <column for="IsActive" halign="center" />
+        <column for="ProductUrl" halign="center" width="1fr" sortable="false">
+            <display-template>
+                <a :href="item.row.ProductUrl" target="_blank" class="text-truncate">
+                    {{ item.row.ProductUrlTitle }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Sku" halign="center" width="1fr" />
+        <column for="Price" halign="center" width="1fr" />
+        <column for="StockQuantity" halign="center" />
+        <column for="AllowOutOfStockOrders" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-edit-attribute-combination" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<input type="submit" id="btnRefreshCombinations" name="btnRefreshCombinations" class="d-none" />
+
+<script>
+    $(function () {
+        $(document).on('click', '.add-new-combination', function (e) {
+            e.preventDefault();
+
+            openPopup('@(Url.Action("AttributeCombinationCreatePopup", "Product", new { productId = parentModel.Id }))&btnId=btnRefreshCombinations&formId=product-form');
+            return false;
+        });
+
+        $(document).on('click', '.grid-edit-attribute-combination', function (e) {
+            e.preventDefault();
+
+            var id = $(this).data("key");
+            var href = '@Url.Content("~/Admin/Product/AttributeCombinationEditPopup/")' + id + '?btnId=btnRefreshCombinations&formId=product-form';
+            openPopup(href);
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefreshCombinations', function () {
+            window["attributecombinations-grid"].$children[0].read();
+            return false;
+        });
+
+        $(document).on('click', '#btnCreateAllCombinations, #btnDeleteAllCombinations', function () {
+            $(this).ajax({
+                success: function (resp) {
+                    $('#btnRefreshCombinations').click();
+                }
+            });
+        });
+    });
+
+    function attributeCombinations_onRowClass(row) {
+        if (!row.IsActive) {
+            return { 'text-muted': true };
+        }
+    }
+</script>

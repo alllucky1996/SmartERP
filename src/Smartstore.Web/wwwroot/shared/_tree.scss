@@ -1,0 +1,296 @@
+/// <reference path="_variables-shared.scss" />
+/// <reference path="_mixins.scss" />
+/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+
+$default-state-color: $gray-400;
+
+.tree {
+    position: relative;
+
+    .droppable * {
+        pointer-events: none;
+    }
+
+    .dragging {
+        box-shadow: 0 0 3px 0 rgba(#000, 0.3);
+    }
+}
+
+.tree-list {
+    position: relative;
+    display: inherit;
+    list-style: none;
+    padding-left: 24px;
+
+    &:first-child {
+        padding-left: 0;
+    }
+}
+
+.tree-node-content {
+    display: inherit;
+    border-radius: $border-radius;
+    padding: 3px 6px;
+}
+
+.tree-label {
+    position: relative;
+    user-select: none;
+    margin: 0;
+}
+
+.tree-pointer,
+.tree-selectable {
+    cursor: pointer;
+}
+
+.tree-highlight .tree-node-content:not(.tree-selected, .tree-disabled):hover {
+    background-color: rgba(#000, 0.08);
+}
+
+.tree-selected {
+    background-color: lighten($warning, 20%);
+}
+
+.tree-dim {
+    opacity: .6;
+}
+
+.tree-icon {
+    display: inline;
+    margin-right: 5px;
+}
+
+.tree-link {
+    text-decoration: none !important;
+    color: inherit;
+}
+
+.tree-name {
+    display: inline-flex;
+}
+
+.tree-num {
+    display: inline-flex;
+    margin-left: 3px;
+}
+
+.tree-expander-container {
+    display: inline-block;
+    min-width: 18px;
+    width: 18px;
+    text-align: center;
+}
+
+.tree-expander {
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.tree-leaf-left {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+}
+
+.tree-noleaf-text {
+    font-weight: $font-weight-medium;
+}
+
+.tree-vline {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 12px;
+    width: 0;
+    border-left: 1px solid $gray-300;
+    height: calc(100% - 12px);
+}
+
+.tree-hline .tree-node:before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    width: 14px;
+    height: 0;
+    margin-top: 13px;
+    border-top: 1px solid $gray-300;
+}
+
+
+// Tree state checkbox.
+// -----------------------------------------
+
+.tree-state-onoff-checkbox {
+    position: absolute;
+    opacity: 0;
+    height: 0;
+    width: 0;
+    margin: 0;
+}
+
+.tree-state-onoff {
+    &:before {
+        content: "";
+        float: left;
+        height: 18px;
+        width: 18px;
+        border-radius: 5px;
+        border: 2px solid $default-state-color;
+        background-color: #fff;
+        margin: 5px 0 0 5px;
+    }
+
+    &:after {
+        position: absolute;
+        display: block;
+    }
+
+    &.on:after,
+    &.in-on:after {
+        content: "";
+        top: 8px;
+        left: 11px;
+        width: 6px;
+        height: 10px;
+        transform: rotate(45deg);
+        border: 2px solid $default-state-color;
+        border-width: 0 3px 3px 0;
+    }
+
+    &.on:before,
+    &.on:after,
+    &.in-on:before,
+    &.in-on:after {
+        border-color: $success;
+    }
+
+    &.off:before,
+    &.in-off:before {
+        border-color: $danger;
+    }
+
+    &.in-on:before,
+    &.in-on:after,
+    &.in-off:before,
+    &.in-off:after {
+        opacity: 0.3;
+    }
+}
+
+.tree-state-onoff-active {
+    cursor: pointer;
+
+    &:hover:before {
+        box-shadow: 0 0 4px rgba($warning, .8);
+        transition: box-shadow 0.1s linear;
+    }
+}
+
+.tree-state-checkbox {
+    position: relative;
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    margin: 0 5px;
+
+    &:not([disabled]):hover {
+        cursor: pointer;
+    }
+}
+
+// Drag and drop indicators.
+// -----------------------------------------
+.tree-line-indicator,
+.tree-over-indicator {
+    position: absolute;
+    top: -100px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+// Line indicator for moving before or after a node.
+.tree-line-indicator {
+    height: 1px;
+    background: radial-gradient(ellipse at right, $body-bg 5%, rgba($success, 0.8) 100%);
+
+    // Arrow left.
+    &:before {
+        position: absolute;
+        display: block;
+        content: '';
+        top: -4px;
+        left: -8px;
+        width: 0;
+        height: 0;
+        border-left: 5px solid $success;
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+    }
+}
+
+// "Over" indicator for moving into a node.
+.tree-over-indicator {
+    content: '';
+    border: 1px solid $success;
+    border-radius: $border-radius;
+}
+
+
+// RTL
+// -----------------------------------------
+[dir=rtl] {
+    .tree-list {
+        padding-right: 24px;
+
+        &:first-child {
+            padding-right: 0;
+        }
+    }
+
+    .tree-icon {
+        margin-right: inherit;
+        margin-left: 5px;
+    }
+
+    .tree-num {
+        margin-right: 3px;
+        margin-left: 0;
+    }
+
+    .tree-vline {
+        left: 0;
+        right: 12px;
+    }
+
+    .tree-hline .tree-node:before {
+        left: 0;
+        right: 12px;
+    }
+
+    .tree-state-onoff {
+        &:before {
+            float: right;
+            margin: 5px 5px 0 0;
+        }
+
+        &.on:after,
+        &.in-on:after {
+            left: 0;
+            right: 11px;
+        }
+    }
+
+    .tree-line-indicator {
+        background: radial-gradient(ellipse at left, $body-bg 5%, rgba($success, 0.8) 100%);
+
+        &:before {
+            border-right: 5px solid $success;
+            border-left: none;
+            left: 0;
+            right: -8px;
+        }
+    }
+}

@@ -1,0 +1,25 @@
+﻿@using Smartstore.Utilities
+
+@functions{
+    private string Value
+    {
+        get
+        {
+            string value = null;
+            if (ViewData.Model != null)
+            {
+                value = Convert.ToString(ViewData.Model);
+            }
+            return value;
+        }
+    }
+}
+
+@{
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
+<colorbox asp-for="@Model"
+          attrs="attributes"
+          value="@Value.EmptyNull()"
+          sm-default-color="@(ViewData["fallbackColor"].Convert<string>())" />

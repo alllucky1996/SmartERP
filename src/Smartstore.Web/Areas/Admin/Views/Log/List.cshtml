@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = T("Admin.System.Log").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<style sm-target-zone="stylesheets" data-origin="LogList">
+    .level-badge {
+        min-width: 64px;
+    }
+</style>
+
+<form method="post">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-fire"></i>
+            @T("Admin.System.Log")
+        </div>
+        <div class="options">
+            <button type="submit" name="clearall" id="clearall" value="clearall" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.System.Log.ClearLog")</span>
+            </button>
+            <confirm button-id="clearall" action="LogClear" message="@T("Admin.System.Log.ClearLog.Confirm")" />
+        </div>
+    </div>
+</form>
+
+<partial name="_Grid.Logs" model="null" />

@@ -1,0 +1,12 @@
+{
+  "$schema": "../module.schema.json",
+  "Group": "CMS",
+  "SystemName": "Smartstore.PriceBuilder",
+  "FriendlyName": "Smartstore Price Builder",
+  "Description": "Synthesize and calculate prices of product from many influencing factors",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Author": "Nguyễn Anh Dũng",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.CMS.Blog"
+}

@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.Measures.Weights").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<form id="measures-weights">
+    <div class="section-header">
+        <div class="title">
+            <i class="fas fa-balance-scale"></i>
+            <span>@T("Admin.Configuration.Measures.Weights")</span>
+        </div>
+    </div>
+
+    <input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />    
+</form>
+
+<partial name="_Grid.MeasureWeight" model="null" />

@@ -1,0 +1,10 @@
+﻿@using Smartstore.Web.Models.Catalog;
+
+@model IList<ProductDetailsModel.ProductVariantAttributeModel>
+
+<div class="pd-variants">
+    @foreach (var attribute in Model.Where(x => x.ShouldBeRendered))
+    {
+        <partial name="ChoiceTemplates/Choice" model="attribute" />
+    }
+</div>

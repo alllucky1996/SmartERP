@@ -1,0 +1,42 @@
+﻿@model RuleSetModel
+
+<datagrid id="rules-grid"
+          allow-resize="true"
+          allow-column-reordering="true"
+          preserve-grid-state="true"
+          onrowclass="rulesGrid_onRowClass">
+    <datasource read="@Url.Action("RuleSetList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="true">
+        <sort by="IsActive" descending="true" />
+        <sort by="Scope" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")…</span>
+            </a>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="Name" hideable="false">
+            <display-template>
+                <div class="dg-cell-value">
+                    <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+                    <div class="text-muted text-truncate">{{ item.row.Description }}</div>
+                </div>
+            </display-template>
+        </column>
+        <column for="ScopeName" entity-member="Scope" />
+        <column for="IsActive" halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" />
+    </columns>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="rules-grid">
+    function rulesGrid_onRowClass(row) {
+        return { "text-muted": !row.IsActive };
+    }
+</script>

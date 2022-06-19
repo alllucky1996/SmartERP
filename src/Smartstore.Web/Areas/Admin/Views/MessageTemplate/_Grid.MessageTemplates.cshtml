@@ -1,0 +1,53 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model MessageTemplateModel
+
+<datagrid id="templates-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("MessageTemplateList", "MessageTemplate")"
+                delete="@Url.Action("MessageTemplateDelete", "MessageTemplate")" />
+    <sorting enabled="true">
+        <sort by="Name" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.MessageTemplates.Search" />
+    </search-panel>
+    <columns>
+        <column for="Name" width="350px" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="Subject" width="1fr" />
+        <column for="IsActive" halign="center" />
+        <column for="SendManually" halign="center" />
+        <column for="LimitedToStores" halign="center" />
+
+        <column for="To" halign="center" visible="false" />
+        <column for="ReplyTo" halign="center" visible="false" />
+        <column for="BccEmailAddresses" halign="center" visible="false" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>

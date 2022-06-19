@@ -1,0 +1,158 @@
+﻿@model int?
+
+@using Smartstore.Core.Data
+@using Smartstore.Utilities
+@using Smartstore.Core.Catalog
+@using Microsoft.EntityFrameworkCore
+
+@inject IMediaService MediaService
+@inject MediaSettings MediaSettings
+@inject CatalogSettings CatalogSettings
+@inject SmartDbContext DbContext
+
+@functions
+{
+    T GetAttribute<T>(string name, T defaultValue, AttributeDictionary attributes)
+    {
+        return attributes.TryGetValue(name, out var val)
+            ? val.Convert<T>()
+            : GetMetadata(name, defaultValue);
+    }
+}
+
+@{
+    // INFO: values come via HTML attributes or directly via ViewData.
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var minimalMode = GetAttribute("minimalMode", false, attributes);
+    var fieldName = GetAttribute("fieldName", ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty), attributes);
+    var entityId = GetAttribute("entityId", 0, attributes);
+    var entityName = GetAttribute("entityName", ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty), attributes);
+    var fileTypes = GetAttribute("fileTypes", string.Empty, attributes);
+    var mediaPath = GetAttribute("path", "download", attributes);
+
+    var random = CommonHelper.GenerateRandomInteger();
+    var clientId = "download-editor-" + random;
+    var download = await DbContext
+        .Downloads
+        .Include(x => x.MediaFile)
+        .FindByIdAsync(Model.GetValueOrDefault(), false);
+
+    var additionalCssClasses = GetMetadata<string>("class", string.Empty);
+    if (minimalMode)
+    {
+        additionalCssClasses += " minimal";
+    }
+
+    var fileName = string.Empty;
+    var initiallyShowUrlPanel = false;
+    var hasFile = false;
+    var downloadUrl = string.Empty;
+    var thumbUrl = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+    if (download != null)
+    {
+        downloadUrl = Url.Action("DownloadFile", "Download", new { downloadId = download.Id });
+        initiallyShowUrlPanel = !minimalMode && download.UseDownloadUrl;
+        hasFile = !download.UseDownloadUrl;
+        fileName = download.MediaFile?.Name ?? (download.Id.ToString().Grow(download.MediaFile?.Extension, "."));
+        thumbUrl = await Url.MediaAsync(download.MediaFileId, MediaSettings.ProductThumbPictureSize);
+    }
+
+    Assets.AppendScriptFiles("~/admin/js/smartstore.download.js");
+}
+
+<div id="@clientId"
+     class="form-row flex-nowrap download-editor edit-control"
+     attr-class='(additionalCssClasses.HasValue(), additionalCssClasses)'
+     data-download-id="@Model.GetValueOrDefault()"
+     data-entity-id="@entityId"
+     data-entity-name="@entityName"
+     data-editor="download"
+     data-create-url="@Url.Action("CreateDownloadFromMediaFile", "Download", new { area = "Admin" })"
+     data-delete-url="@Url.Action("DeleteDownload", "Download", new { minimalMode, fieldName, downloadId = Model, area = "Admin" })"
+     data-use-url="@(initiallyShowUrlPanel ? "true" : "false")">
+
+    <input type="hidden" name="is-url-download-@(Model)" id="is-url-download-@(Model)" value='@(initiallyShowUrlPanel ? "true" : "false")' />
+
+    <div attr-class='(!minimalMode || hasFile, "col-auto")'>
+        <!-- Type Chooser Dropdown -->
+        @if (!minimalMode)
+        {
+            <div class="btn-group panel-switcher" title='@T("Admin.Download.UploadFile")'>
+                <a class="btn btn-secondary btn-icon dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-@(initiallyShowUrlPanel ? "globe": "upload") panel-switcher-icon"></i>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="#" class="dropdown-item toggle-file" attr-class='(!initiallyShowUrlPanel, "disabled")'>@T("Admin.Download.UploadFile")</a>
+                    <a href="#" class="dropdown-item toggle-url" attr-class='(initiallyShowUrlPanel, "disabled")'>@T("Common.FileUploader.EnterUrl")</a>
+                    @if (download != null)
+                    {
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item remove-download">
+                            <i class="far fa-trash-alt"></i>
+                            <span>@T("Common.Remove")</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Main Panel -->
+    <div class="col panel-upload fu-container">
+
+        <!-- FileUpload Panel  -->
+        <div class="form-row flex-nowrap dropzone-container panel-file" attr-class='(initiallyShowUrlPanel, "hide")'>
+
+            <div class="fu-thumb" data-debug-info="@(download != null ? download.MediaFileId : 0)">
+                @if (download?.MediaFile != null)
+                {
+                    <media-thumbnail sm-file="MediaService.ConvertMediaFile(download.MediaFile)" sm-size="MediaSettings.ThumbnailSizeMd"></media-thumbnail>
+                }
+                else
+                {
+                    <img class="file-img" title="icon" src="@thumbUrl">
+                }
+            </div>
+
+            <input type="hidden" id="@fieldName.SanitizeHtmlId()" name="@fieldName" value="@Model" class="hidden" />
+
+            <div class="fu-controls">
+                <file-uploader upload-url="@Url.Action("AsyncUpload", "Download", new { minimalMode, fieldName, entityId, entityName, area = "Admin" })"
+                               delete-url="@Url.Action("DeleteDownload", "Download", new { minimalMode, fieldName, downloadId = Model, area = "Admin" })"
+                               multi-file="false"
+                               media-path="@mediaPath"
+                               type-filter="@(string.Join("|", CatalogSettings.FileUploadAllowedExtensions.Select(x => x.Trim()).ToList()))"
+                               has-template-preview="true"
+                               display-browse-media-button="true"
+                               display-remove-button="hasFile"
+                               display-remove-button-after-upload="true" />
+            </div>
+        </div>
+
+        <!-- URL Panel -->
+        @if (!minimalMode)
+        {
+            var value = download != null ? download.DownloadUrl : string.Empty;
+            var saveDownloadUrl = Url.Action("SaveDownloadUrl", "Download", new { minimalMode, fieldName, entityId, entityName, area = "Admin" });
+
+            <div class="panel-url" style="display: @(initiallyShowUrlPanel ? "block": "none")">
+                <div class="input-group">
+                    <input type="text" class="download-url-value form-control" value='@value' data-value='@value' />
+                    <div class="input-group-append">
+                        <a class="btn btn-outline-secondary save-download-url disabled" href="@saveDownloadUrl">
+                            <i class="fa fa-check"></i>
+                            <span>@T("Common.Save")</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="fu-progress">
+            <!-- The single upload progress bar -->
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+﻿@model FaviconModel
+
+@if (Model.FavIconUrl.HasValue())
+{
+    <link rel="shortcut icon" href='@($"{Model.FavIconUrl}?v={ SmartstoreVersion.CurrentVersion}")' />
+}
+
+@if (Model.PngIcons.Count > 0)
+{
+    <!-- png icons -->
+    foreach (var icon in Model.PngIcons)
+    {
+        <link rel="icon" type="image/png" sizes="@icon.Size" href="@icon.Url" />
+    }
+}
+
+@if (Model.AppleTouchIcons.Count > 0)
+{
+    <!-- Apple touch icons -->
+    foreach (var icon in Model.AppleTouchIcons)
+    {
+        <link rel="icon" type="image/png" sizes="@icon.Size" href="@icon.Url" />
+    }
+}
+
+@if (Model.MsTileIconUrl.HasValue())
+{
+    <!-- Microsoft tiles -->
+    if (Model.MsTileColor.HasValue())
+    {
+        <meta name="msapplication-TileColor" content="@Model.MsTileColor">
+    }
+    <meta name="msapplication-TileImage" content="@Model.MsTileIconUrl">
+    <meta name="msapplication-config" content="@Url.Content("~/browserconfig.xml")" />
+}

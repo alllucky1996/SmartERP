@@ -1,0 +1,65 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model QueuedEmailModel
+
+<datagrid id="queuedEmails-grid" 
+          allow-resize="true" 
+          allow-row-selection="true" 
+          allow-column-reordering="true" 
+          onrowclass="queuedEmails_onRowClass">
+    <datasource read="@Url.Action("QueuedEmailList")" delete="@Url.Action("QueuedEmailDelete")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="true">
+        <sort by="Priority" descending="true" />
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.QueuedEmails.Search" model="new QueuedEmailListModel()" />
+    </search-panel>
+    <columns>
+        <column for="Id" visible="false" width="max-content" resizable="false" type="string" />
+        <column for="Subject" hideable="false">
+            <display-template>
+                <i v-if="item.row.SentOn" class="far fa-paper-plane mr-2"></i>
+                <i v-else class="far fa-envelope mr-2"></i>
+                <a :href="item.row.ViewUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="AttachmentsCount" halign="center" sortable="false" icon="fa fa-paperclip" width="max-content" resizable="false" title="" />
+        <column for="EmailAccountName" width="300px" title="@T("Admin.System.QueuedEmails.Fields.From")" entity-member="EmailAccount.DisplayName" />
+        <column for="To" width="300px" />
+        <column for="Priority" halign="center" />
+        <column for="SentTries" halign="center" />
+        <column for="SentOn" entity-member="SentOnUtc" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+
+        <column for="SendManually" halign="center" visible="false" />
+        <column for="From" visible="false" width="300px" />
+        <column for="CC" visible="false" width="300px" />
+        <column for="Bcc" visible="false" width="300px" />
+    </columns>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="queuedEmails-grid">
+    function queuedEmails_onRowClass(row) {
+        return { 'text-muted': !!(row.SentOn) };
+    }
+</script>

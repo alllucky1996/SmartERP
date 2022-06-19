@@ -1,0 +1,10 @@
+﻿@model int?
+﻿
+<select asp-for="@Model"
+        class="edit-control"
+        data-editor="select"
+        v-bind:data-select-selected-id="item.value"
+        v-bind:data-select-init-text="item.row.Store"
+        data-placeholder='@T("Admin.Common.StoresAll")'
+        data-select-url='@Url.Action("AllStores", "Store")'>
+</select>

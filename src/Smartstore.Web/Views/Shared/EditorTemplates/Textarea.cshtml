@@ -1,0 +1,12 @@
+﻿@using Smartstore.Utilities
+
+@{
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var cols = GetMetadata<int>("cols");
+    var rows = GetMetadata<int>("rows");
+}
+
+<textarea asp-for="@Model" 
+          attrs="attributes" 
+          attr-cols="(cols > 0, cols.ToString())" 
+          attr-rows="(rows > 0, rows.ToString())"></textarea>

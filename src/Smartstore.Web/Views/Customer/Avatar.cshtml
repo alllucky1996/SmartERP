@@ -1,0 +1,81 @@
+﻿@using Smartstore.Web.Models.Customers;
+
+@model CustomerAvatarEditModel
+
+@inject IMediaService MediaService
+
+@{
+    Assets.AppendTitleParts(T("PageTitle.Account"));
+
+    Layout = "_MyAccount";
+    ViewBag.PageClassToken = "avatar";
+    ViewBag.PageTitle = T("Account.Avatar").Value;
+
+    var fileId = Model?.Avatar?.FileId ?? 0;
+    var currentFile = await MediaService.GetFileByIdAsync(fileId, MediaLoadFlags.AsNoTracking);
+}
+
+<div asp-validation-summary="ModelOnly"></div>
+
+<div id="AvatarUploadContainer">
+    <div class="fu-container">
+        <div class="dropzone-container">
+            <div class="avatar-container fu-filename m-2 h-100" data-current-filename="@(currentFile?.Name)">
+                <partial name="Customer.Avatar" model="Model.Avatar" />
+            </div>
+            <input type="hidden" asp-for="@fileId" class="hidden" />
+
+            <div class="fu-controls ml-3">
+                <file-uploader 
+                    file-uploader-name="uploadedFile"
+                    upload-url='@Url.Action("UploadAvatar", "Customer")'
+                    type-filter="image"
+                    display-browse-media-button="false"
+                    display-remove-button="fileId != 0"
+                    display-remove-button-after-upload="true"
+                    upload-text='@T("Common.FileUploader.UploadAvatar")'
+                    onuploadcompleted="onAvatarUploaded"
+                    onfileremoved="onAvatarRemoved"
+                    multi-file="false"
+                    has-template-preview="true" />
+            </div>
+        </div>
+
+        <div class="fu-progress">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="customer-avatar">
+    window['onAvatarUploaded'] = function (file, response, progress) {
+        if (response.success) {
+			// Hide letter span.
+            $(".avatar-letter").addClass("d-none");
+
+			// Display image.
+            $(".avatar-img")
+				.attr("src", response.avatarUrl)
+                .removeClass("d-none");
+
+            // Display name.
+            $(".fu-message").html(file.name);
+        }
+	};
+
+    window['onAvatarRemoved'] = function (e, el) {
+		$.ajax({
+			async: false,
+			cache: false,
+			type: 'POST',
+            url: '@Url.Action("RemoveAvatar", "Customer")',
+            success: function () {
+                // Switch display classes for image and letter.
+                $(".avatar-img").addClass("d-none");
+                $(".avatar-letter").removeClass("d-none");
+			}
+		});
+	}
+</script>

@@ -1,0 +1,59 @@
+﻿@using Smartstore.Admin.Models.Topics
+
+@model TopicModel
+
+@{
+    var parentModel = ViewData["Parent"] as TopicListModel;
+}
+
+<datagrid id="productattributes-grid" allow-resize="true" allow-column-reordering="true" allow-edit="true">
+    <datasource read="@Url.Action("TopicList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
+        <sort by="SystemName" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.Topics.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="SystemName" readonly="true" width="minmax(60px, 1.5fr)" hideable="false">
+            <display-template>
+                <a :href="item.row.ViewUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Title" width="minmax(60px, 4fr)" />
+        <column for="WidgetZoneValue" entity-member="WidgetZone" readonly="true" wrap="true" />
+        <column for="IsPasswordProtected" readonly="true" halign="center" width="0.75fr" />
+        <column for="IncludeInSitemap" halign="center" width="0.75fr" />
+        <column for="RenderAsWidget" halign="center" readonly="true" width="0.75fr" />
+        <column for="LimitedToStores" readonly="true" halign="center" width="0.75fr" />
+        <column for="Priority" halign="center" />
+
+        <!-- Invisible columns -->
+        <column for="IsSystemTopic" readonly="true" halign="center" width="0.75fr" visible="false" />
+        <column for="IsPublished" halign="center" width="0.75fr" visible="false" />
+        <column for="HtmlId" halign="center" visible="false" />
+    </columns>
+</datagrid>

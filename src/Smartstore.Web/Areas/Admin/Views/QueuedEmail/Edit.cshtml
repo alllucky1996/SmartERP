@@ -1,0 +1,44 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model QueuedEmailModel
+
+@{
+    ViewBag.Title = T("Admin.System.QueuedEmails.EditQueuedEmailDetails").Value;
+}
+
+<form method="post" asp-action="Edit">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-envelope"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <button type="submit" name="requeue" value="requeue" class="btn btn-secondary">
+                <i class="fa fa-redo"></i>
+                <span>@T("Admin.System.QueuedEmails.Requeue")</span>
+            </button>
+            @if (Model.SendManually)
+            {
+                <button type="submit" name="sendnow" value="sendnow" class="btn btn-primary confirm">
+                    <i class="fa fa-envelope"></i>
+                    <span>@T("Admin.Common.SendNow")</span>
+                </button>
+            }
+            <button id="queuedEmail-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="queuedEmail-delete" />
+        </div>
+    </div>
+
+	<partial name="_CreateOrUpdate" model="Model" />
+</form>

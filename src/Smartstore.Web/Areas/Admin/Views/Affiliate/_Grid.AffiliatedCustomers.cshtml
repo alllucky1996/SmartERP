@@ -1,0 +1,26 @@
+﻿@using Smartstore.Admin.Models.Affiliates
+
+@model AffiliateModel.AffiliatedCustomerModel
+
+<datagrid id="customers-grid" allow-resize="true" allow-column-reordering="true">
+    <datasource read="@Url.Action("AffiliatedCustomerList", "Affiliate", new { affiliateId = ViewData["AffiliateId"] })" />
+    <sorting enabled="true">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <columns>
+        <column for="Email" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Username" />
+        <column for="FullName" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Admin.Common.View")</a>
+    </row-commands>
+</datagrid> 

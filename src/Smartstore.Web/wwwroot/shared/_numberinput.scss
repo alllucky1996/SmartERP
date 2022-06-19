@@ -1,0 +1,352 @@
+/// <reference path="_variables-shared.scss" />
+/// <reference path="_mixins.scss" />
+/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+
+.numberinput-group {
+    overflow: hidden;
+    flex-wrap: nowrap;
+    --ni-height: #{$input-height-inner};
+    --ni-font-size: #{$font-size-base};
+    --ni-line-height: #{$input-line-height};
+    --ni-padding-x: #{$input-btn-padding-x};
+    --ni-padding-y: #{$input-btn-padding-y};
+    --ni-border-radius: #{$input-border-radius};
+    --ni-addon-width: var(--ni-height);
+
+    &.input-group-lg {
+        --ni-height: #{$input-height-inner-lg};
+        --ni-font-size: #{$font-size-lg};
+        --ni-line-height: #{$input-line-height-lg};
+        --ni-padding-x: #{$input-btn-padding-x-lg};
+        --ni-padding-y: #{$input-btn-padding-y-lg};
+        --ni-border-radius: #{$input-border-radius-lg};
+    }
+
+    &.input-group-sm {
+        --ni-height: #{$input-height-inner-sm};
+        --ni-font-size: #{$font-size-sm};
+        --ni-line-height: #{$input-line-height-sm};
+        --ni-padding-x: #{$input-btn-padding-x-sm};
+        --ni-padding-y: #{$input-btn-padding-y-sm};
+        --ni-border-radius: #{$input-border-radius-sm};
+    }
+}
+
+.numberinput {
+    border-radius: var(--ni-border-radius) !important; // Fix bs4 .input-group > .form-control issue
+    font-size: var(--ni-font-size) !important;
+    -moz-appearance: textfield;
+}
+
+.numberinput-initialized > .numberinput {
+    color: transparent;
+
+    &:focus,
+    &:active {
+        color: inherit;
+
+        ~ .numberinput-formatted {
+            display: none !important;
+        }
+    }
+}
+
+.numberinput::-webkit-inner-spin-button,
+.numberinput::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.numberinput::placeholder {
+    font-style: italic;
+}
+
+.numberinput-formatted {
+    position: absolute;
+    z-index: 1;
+    display: none;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    font-size: var(--ni-font-size) !important;
+    line-height: var(--ni-line-height);
+
+    .numberinput-initialized > & {
+        display: inline-flex;
+    }
+
+    &:empty {
+        display: none;
+    }
+}
+
+.numberinput-postfix {
+    display: block;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    z-index: 10;
+    background-color: $input-bg;
+    color: $gray-600;
+    font-size: var(--ni-font-size);
+    line-height: var(--ni-line-height);
+    cursor: default;
+    user-select: none;
+
+    .numberinput:disabled ~ &,
+    .numberinput:read-only ~ & {
+        background-color: $input-disabled-bg;
+    }
+}
+
+.numberinput-formatted,
+.numberinput-postfix {
+    pointer-events: none;
+}
+
+.numberinput-stepper {
+    position: absolute;
+    z-index: 15;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    .numberinput:disabled ~ &,
+    .numberinput:read-only ~ &,
+    &:disabled {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+}
+
+//
+// Default Styling
+// -------------------------------------
+
+.numberinput-default {
+    &:after {
+        // Mimic input group addon
+        position: absolute;
+        z-index: 10;
+        content: ' ';
+        display: block;
+        background: $input-group-addon-bg;
+        border: 0 solid $input-group-addon-border-color;
+        border-left-width: 1px;
+        top: 1px;
+        right: 1px;
+        bottom: 1px;
+        left: auto;
+        width: var(--ni-addon-width);
+        border-top-right-radius: var(--ni-border-radius);
+        border-bottom-right-radius: var(--ni-border-radius);
+    }
+
+    > .numberinput-formatted {
+        justify-content: center;
+        left: 1px;
+        height: 100%;
+        align-items: center;
+        padding: 0 var(--ni-padding-x);
+    }
+
+    > .numberinput-postfix {
+        top: 1px;
+        bottom: 1px;
+        right: var(--ni-height);
+        padding-right: var(--ni-padding-x);
+    }
+
+    > .numberinput-stepper {
+        right: 1px;
+        width: calc(var(--ni-addon-width) - 1px);
+        height: calc(50% - 1px);
+        color: inherit;
+        font-size: 10px;
+
+        &.numberinput-up {
+            top: 1px;
+        }
+
+        &.numberinput-down {
+            bottom: 1px;
+        }
+    }
+
+    > .numberinput:not(:disabled) ~ .numberinput-stepper,
+    > .numberinput:not(:read-only) ~ .numberinput-stepper {
+        &:hover {
+            background-color: rgba(#000, 0.05);
+        }
+
+        &:active {
+            background-color: rgba(#000, 0.08);
+        }
+    }
+}
+
+
+//
+// Centered Styling
+// -------------------------------------
+
+.numberinput-centered {
+    --ni-addon-width: 1.6rem;
+    --ni-number-offset: 0px;
+    --ni-number-top: calc(var(--ni-padding-y) - var(--ni-number-offset));
+    --ni-number-bottom: calc(var(--ni-padding-y) + var(--ni-number-offset));
+
+    &.has-postfix {
+        --ni-number-offset: calc((var(--ni-padding-y) / 2) + 0.175rem);
+    }
+
+    &.has-postfix.input-group-lg {
+        --ni-number-offset: calc(var(--ni-padding-y) / 2);
+        --ni-font-size: #{$font-size-base};
+    }
+
+    &.has-postfix.input-group-sm {
+        --ni-number-top: 0px;
+        --ni-number-bottom: calc(var(--ni-padding-y) * 2);
+    }
+
+    > .numberinput {
+        font-weight: $font-weight-bold;
+        padding-left: var(--ni-addon-width);
+        padding-right: var(--ni-addon-width);
+        padding-top: var(--ni-number-top);
+        padding-bottom: var(--ni-number-bottom);
+        text-align: center;
+    }
+
+    > .numberinput-formatted {
+        font-weight: $font-weight-bold;
+        left: var(--ni-addon-width);
+        right: var(--ni-addon-width);
+        top: var(--ni-number-top);
+        bottom: var(--ni-number-bottom);
+        justify-content: center;
+        align-items: center;
+    }
+
+    > .numberinput-postfix {
+        font-size: 11px;
+        left: var(--ni-addon-width);
+        right: var(--ni-addon-width);
+        bottom: 1px;
+        top: auto;
+        padding-bottom: 0.15rem;
+        justify-content: center;
+        align-items: center;
+        background-color: transparent;
+    }
+
+    &.input-group-lg > .numberinput-postfix {
+        bottom: 5px;
+    }
+
+    > .numberinput-stepper {
+        width: var(--ni-addon-width);
+        height: 100%;
+        color: inherit;
+        opacity: 0.3;
+
+        &.numberinput-up {
+            right: 1px;
+            left: auto;
+            padding-left: 4px;
+            justify-content: flex-start;
+        }
+
+        &.numberinput-down {
+            left: 1px;
+            right: auto;
+            padding-right: 4px;
+            justify-content: flex-end;
+        }
+    }
+
+    > .numberinput:not(:disabled) ~ .numberinput-stepper,
+    > .numberinput:not(:read-only) ~ .numberinput-stepper {
+        &:hover {
+            opacity: 0.6;
+        }
+
+        &:active {
+            opacity: 1;
+        }
+    }
+}
+
+// Text prepend
+// --------------------------------------------------
+
+.number-input-prepend {
+    margin-right: -3px !important;
+    z-index: 2;
+
+    .input-group-text {
+        border-radius: $border-radius-sm 0 0 $border-radius-sm;
+    }
+}
+
+
+// RTL support (right to left)
+// --------------------------------------------------
+
+[dir=rtl] .numberinput-centered {
+    > .numberinput-up {
+        left: 1px;
+        right: auto;
+        padding-left: 0;
+        padding-right: 4px;
+    }
+
+    > .numberinput-down {
+        right: 1px;
+        left: auto;
+        padding-right: 0;
+        padding-left: 4px;
+    }
+}
+
+[dir=rtl] .numberinput-default {
+    &:after {
+        // Mimic input group addon
+        border-left-width: 0;
+        border-right-width: 1px;
+        left: 1px;
+        right: auto;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-top-left-radius: var(--ni-border-radius);
+        border-bottom-left-radius: var(--ni-border-radius);
+    }
+
+    > .numberinput-formatted {
+        left: auto;
+        right: 1px;
+    }
+
+    > .numberinput-postfix {
+        left: var(--ni-height);
+        right: auto;
+        padding-left: var(--ni-padding-x);
+        padding-right: 0;
+    }
+
+    > .numberinput-stepper {
+        left: 1px;
+        right: auto;
+    }
+}
+
+[dir=rtl] .number-input-prepend {
+    margin-left: -3px !important;
+    z-index: 2;
+
+    .input-group-text {
+        border-radius: 0 $border-radius-sm $border-radius-sm 0;
+    }
+}

@@ -1,0 +1,126 @@
+﻿@using Smartstore.Admin.Models.Logging
+ 
+@model LogModel
+
+@{
+    Assets.AppendScriptFiles("https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js");
+    ViewBag.Title = T("Admin.System.Log.ViewLogDetails").Value;
+}
+
+<form method="post">
+    <input asp-for="Id" type="hidden" />
+
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-fire"></i>
+            @T("Admin.System.Log.ViewLogDetails") <a asp-action="List">(@T("Admin.System.Log.BackToList"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" id="log-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="log-delete" />
+        </div>
+    </div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="LogLevel" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    <span class="badge badge-@Model.LogLevelHint">@Model.LogLevel</span>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Logger" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Logger" sm-plaintext readonly="readonly" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShortMessage" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    <textarea asp-for="ShortMessage" readonly="readonly"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IpAddress" />
+            </div>
+            <div class="adminData">
+                <input asp-for="IpAddress" sm-plaintext readonly="readonly" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CustomerId" />
+            </div>
+            <div class="adminData">
+                <div sm-if="Model.CustomerId.HasValue" class="form-control-plaintext">
+                    <a asp-action="Edit" asp-controller="Customer" asp-route-id="@Model.CustomerId">
+                        @(Model.CustomerEmail.HasValue() ? Model.CustomerEmail : T("Admin.Customers.Guest").Value)
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UserName" />
+            </div>
+            <div class="adminData">
+                <input asp-for="UserName" sm-plaintext readonly="readonly" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PageUrl" />
+            </div>
+            <div class="adminData wide">
+                <div sm-if="Model.PageUrl.HasValue()" class="form-control-plaintext">
+                    <span>@Model.HttpMethod </span>
+                    <a href="@Model.PageUrl" target="_blank">@Model.PageUrl</a>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ReferrerUrl" />
+            </div>
+            <div class="adminData wide">
+                <div sm-if="Model.ReferrerUrl.HasValue()" class="form-control-plaintext">
+                    <span>@Model.HttpMethod </span>
+                    <a href="@Model.ReferrerUrl" target="_blank">@Model.ReferrerUrl</a>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CreatedOn" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @Html.DisplayFor(model => model.CreatedOn)
+                </div>
+            </div>
+        </div>
+        <div sm-if="Model.FullMessage.HasValue()" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="FullMessage" />
+            </div>
+            <div class="adminData wide">
+                @*No whitespace within pre tag*@
+                <pre class="prettyprint xlang-java" style="white-space: pre-wrap;">@Html.DisplayFor(model => model.FullMessage)</pre>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,65 @@
+﻿@model CookieInfoModel
+
+<datagrid id="cookie-infos-grid"
+          allow-resize="true"
+          allow-edit="true"
+          allow-column-reordering="true"
+          key-member="Name"
+          onrowclass="cookieInfos_onRowClass">
+    <datasource read="@Url.Action("CookieInfoList")" delete="@Url.Action("CookieInfoDelete")"/>
+    <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    <toolbar>
+        <toolbar-group>
+            <button id="add-cookie-info-button" data-toggle="modal" class="btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Common.AddNew")...</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" />
+        <column for="Description" width="3fr" />
+        <column for="CookieTypeName" width="0.75fr" />
+        <column for="IsPluginInfo" width="0.75fr" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="edit-cookie-infos" :data-key="item.row.Name" v-bind:class="{ disabled: item.row.IsPluginInfo }">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete" v-bind:class="{ disabled: item.row.IsPluginInfo }">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<input type="submit" id="btnRefreshCookieInfos" name="btnRefreshCookieInfos" class="d-none" />
+
+<script sm-target-zone="scripts" data-origin="cookieInfos-grid">
+    $(function () {
+        $("#add-cookie-info-button").on("click", function (e) {
+            openPopup('@(Url.Action("CookieInfoCreatePopup", "Setting"))', false);
+            return false;
+        });
+
+        $(document).on('click', '.edit-cookie-infos', function (e) {
+            e.preventDefault();
+            var href = '@Url.Action("CookieInfoEditPopup", "Setting")?name=' + $(this).data("key");
+			openPopup(href, false);
+			return false;
+		});
+    });
+
+    $('#btnRefreshCookieInfos').on('click', function () {
+        window["cookie-infos-grid"].$children[0].read();
+        return false;
+    });
+
+    function cookieInfos_onRowClass(row) {
+        if (row.IsPluginInfo) {
+            return { 'text-muted': true };
+		}
+    }
+</script>

@@ -1,0 +1,146 @@
+﻿@model int?
+
+@using Smartstore.Core.Content.Media
+@using Smartstore.Utilities
+
+@inject IMediaService MediaService
+
+@functions {
+    private bool TransientUpload
+    {
+        get
+        {
+            return GetMetadata<bool>("transientUpload");
+        }
+    }
+
+    private bool ShowBrowseMedia
+    {
+        get
+        {
+            return GetMetadata<bool>("showBrowseMedia", true);
+        }
+    }
+
+    private string MediaPath
+    {
+        get
+        {
+            return GetMetadata<string>("path") ?? GetMetadata<string>("album");
+        }
+    }
+
+    private string TypeFilter
+    {
+        get
+        {
+            return GetMetadata<string>("typeFilter", "image");
+        }
+    }
+
+    private int EntityId
+    {
+        get
+        {
+            return GetMetadata<int>("entityId");
+        }
+    }
+
+    private string EntityType
+    {
+        get
+        {
+            return GetMetadata<string>("entityType");
+        }
+    }
+
+    private string DeleteUrl
+    {
+        get
+        {
+            return GetMetadata<string>("deleteUrl");
+        }
+    }
+
+    private string SortUrl
+    {
+        get
+        {
+            return GetMetadata<string>("sortUrl");
+        }
+    }
+
+    private string EntityAssignmentUrl
+    {
+        get
+        {
+            return GetMetadata<string>("entityAssignmentUrl");
+        }
+    }
+
+    private bool MultiFile
+    {
+        get
+        {
+            return GetMetadata<bool>("multifile");
+        }
+    }
+
+    private IEnumerable<IMediaFile> UploadedFiles
+    {
+        get
+        {
+            return GetMetadata<IEnumerable<IMediaFile>>("uploadedFiles");
+        }
+    }
+}
+
+@{
+    var random = CommonHelper.GenerateRandomInteger();
+    var currentFile = Model != null ? await MediaService.GetFileByIdAsync((int)Model) : null;
+    var defaultValue = Model != null ? 0 : (int?)null;
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
+<div class="fu-container" attr-class='(MultiFile, "xl")'>
+    <div attr-class='(!MultiFile, "dropzone-container")'>
+
+        @if (!MultiFile)
+        {
+            // Single file uploads have preview images.
+            <div class="fu-thumb fu-filename rounded" data-current-filename="@(currentFile?.Name)">
+                <media-thumbnail sm-file="currentFile" sm-size="MediaSettings.ThumbnailSizeMd"></media-thumbnail>
+            </div>
+            <input asp-for="@Model"
+                   type="hidden" 
+                   value="@(currentFile != null ? Model : defaultValue)" 
+                   attrs="attributes"
+                   class="hidden" />
+        }
+        <div class="fu-controls">
+            <file-uploader 
+                upload-url="@Url.Action("Upload", "Media", new { isTransient = TransientUpload, path = MediaPath, area = "Admin" })"
+                media-path="@MediaPath"
+                type-filter="@TypeFilter"
+                display-remove-button="!MultiFile && Model.HasValue"
+                display-remove-button-after-upload="true"
+                preview-container-id="@("preview-" + random)"
+                multi-file="MultiFile"
+                main-file-id="Model"
+                display-browse-media-button="ShowBrowseMedia"
+                has-template-preview="true"
+                uploaded-files="UploadedFiles"
+                entity-type="@EntityType"
+                entity-id="EntityId"
+                delete-url="@DeleteUrl"
+                sort-url="@SortUrl"
+                entity-assigment-url="@EntityAssignmentUrl" />
+        </div>
+    </div>
+    <div class="fu-progress">
+        <!-- The single upload progress bar -->
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+</div>

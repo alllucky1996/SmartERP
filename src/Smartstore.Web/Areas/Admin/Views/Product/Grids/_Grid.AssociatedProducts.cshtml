@@ -1,0 +1,90 @@
+﻿@model ProductModel.AssociatedProductModel
+
+@{
+    var parentModel = ViewData["Parent"] as ProductModel;
+}
+
+<datagrid id="associatedproducts-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-edit="true"
+          allow-column-reordering="true"
+          max-height="800px">
+    <datasource read="@Url.Action("AssociatedProductList", new { productId = parentModel.Id })"
+                delete="@Url.Action("AssociatedProductDelete")"
+                update="@Url.Action("AssociatedProductUpdate")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="false" />
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button id="pick-associated-products" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" hideable="false" width="2fr" readonly>
+            <display-template>
+                @Html.LabeledProductName()
+            </display-template>
+        </column>
+        <column for="Sku" halign="center" width="1fr" readonly />
+        <column for="Published" halign="center" readonly />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<entity-picker icon-css-class="fa fa-plus"
+               caption='@T("Common.AddNew")'
+               dialog-title='@T("Admin.Catalog.Products.AssociatedProducts.AddNew")'
+               onselectioncompleted="PickAssociatedProducts_Completed"
+               disable-grouped-products="true"
+               class="associated-products-picker"
+               style="display:none" />
+
+<script>
+    $(function () {
+        // Call hidden entity picker.
+        $(document).on("click", "#pick-associated-products", function (e) {
+            $(".associated-products-picker").trigger("click");
+            return false;
+        });
+    });
+
+    function PickAssociatedProducts_Completed(ids) {
+        $({}).ajax({
+			url: '@Url.Action("AssociatedProductAdd")',
+            data: {
+                "productId": @parentModel.Id,
+                "selectedProductIds": ids
+            },
+			success: function () {
+                window["associatedproducts-grid"].$children[0].read();
+			}
+		});
+		return true;
+	}
+</script>

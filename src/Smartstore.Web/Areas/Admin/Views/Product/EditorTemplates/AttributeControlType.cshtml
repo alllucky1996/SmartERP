@@ -1,0 +1,5 @@
+﻿@using Smartstore.Core.Catalog.Attributes
+
+@model int
+
+<select asp-for="@Model" asp-items="AttributeControlType.DropdownList.ToSelectList()" class="edit-control" data-editor="select"></select>

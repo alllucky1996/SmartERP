@@ -1,0 +1,14 @@
+﻿@model ProductAttributeListModel
+
+<div class="form-group">
+    <smart-label asp-for="SearchName" />
+    <editor asp-for="SearchName" asp-template="SearchExpression" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchAlias" />
+    <editor asp-for="SearchAlias" asp-template="SearchExpression" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchAllowFiltering" />
+    <editor asp-for="SearchAllowFiltering" />
+</div>

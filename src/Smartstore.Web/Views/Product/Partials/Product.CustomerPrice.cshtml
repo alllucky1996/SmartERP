@@ -1,0 +1,10 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model ProductDetailsModel
+
+<div class="form-group">
+    <label for="@($"{Html.IdForModel()}{Html.IdAttributeDotReplacement}{nameof(Model.AddToCart.CustomerEnteredPrice)}")">
+        @Html.DisplayNameFor(x => x.AddToCart.CustomerEnteredPrice)
+    </label>
+    @Html.TextBox("CustomerEnteredPrice", Convert.ToInt32(Math.Ceiling(Model.AddToCart.CustomerEnteredPrice)), new { @class = "form-control" })
+</div>
